@@ -92,6 +92,7 @@ function recordCard(category, rec, opts) {
   if (opts.canPeriksa && status === 'Disahkan') {
     acts.appendChild(el('button', { class: 'btn btn-verify btn-sm', onClick: () => opts.onPeriksa(rec) }, 'Periksa'));
   }
+  if (opts.cardExtra) { const ex = opts.cardExtra(rec); if (ex) acts.appendChild(ex); }
 
   return el('div', { class: 'rec-card' }, [head, kv, traceEl, acts]);
 }

@@ -74,7 +74,7 @@ function renderUserPanel() {
     el('div', { class: 'user-avatar' }, initials),
     el('div', { class: 'min-w-0 flex-1' }, [
       el('div', { class: 'user-name' }, u.name),
-      el('div', { class: 'user-role' }, auth.roleLabel(u) + (u.section ? ' · ' + auth.SECTIONS[u.section] : '')),
+      el('div', { class: 'user-role' }, auth.roleLabel(u)),
     ]),
     el('button', {
       class: 'user-logout', title: 'Keluar', 'aria-label': 'Keluar',

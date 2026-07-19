@@ -46,7 +46,7 @@ export function renderDashboard() {
   const user = auth.currentUser();
   const tanks = api.list('tank');
   const aktif = tanks.filter((t) => t.status === 'Aktif').length;
-  const batches = api.list('indukBatch').length;
+  const rekomendasi = api.list('temuanLab').filter((t) => (t.status || 'Baru') === 'Baru').length;
   // Peringatan dilingkup ke modul yang boleh diakses peran aktif
   const alerts = scanAlerts({ days: 10 }).filter((a) => {
     const hub = hubForCategory(a.categoryId);
@@ -66,7 +66,7 @@ export function renderDashboard() {
       heroStat(aktif, 'Tank Aktif'),
       heroStat(counts.waspada, 'Waspada'),
       heroStat(counts.bahaya, 'Bahaya'),
-      heroStat(batches, 'Batch Induk'),
+      heroStat(rekomendasi, 'Rekomendasi Lab'),
     ]),
   ]));
 
@@ -127,18 +127,18 @@ export function renderDashboard() {
   root.appendChild(grid);
 
   // ---- Tren ----
-  const trends = renderCategoryTrends(getCategory('dailyLog'), api.list('dailyLog'));
+  const trends = renderCategoryTrends(getCategory('prodLarvae'), api.list('prodLarvae'));
   if (trends) {
     const sec = el('div', {});
-    sec.appendChild(sectionTitle('Tren Kualitas Air Tank'));
+    sec.appendChild(sectionTitle('Tren Kualitas Air Tank (Produksi)'));
     sec.appendChild(trends);
     root.appendChild(sec);
   }
-  const stadiaTrends = renderCategoryTrends(getCategory('stadiaLog'), api.list('stadiaLog'));
-  if (stadiaTrends) {
+  const labTrends = renderCategoryTrends(getCategory('labCekLarva'), api.list('labCekLarva'));
+  if (labTrends) {
     const sec = el('div', {});
-    sec.appendChild(sectionTitle('Perkembangan & Survival'));
-    sec.appendChild(stadiaTrends);
+    sec.appendChild(sectionTitle('Mutu Larva (Lab)'));
+    sec.appendChild(labTrends);
     root.appendChild(sec);
   }
 

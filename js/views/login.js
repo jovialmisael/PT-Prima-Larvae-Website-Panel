@@ -6,7 +6,7 @@
 
 import { el, clear } from '../dom.js';
 import { ICONS } from '../icons.js';
-import { USERS, SECTIONS, login, roleLabel } from '../auth.js';
+import { USERS, login, roleLabel } from '../auth.js';
 
 export function renderLoginView(onSuccess) {
   const root = el('div', { class: 'login-wrap' });
@@ -72,7 +72,6 @@ export function renderLoginView(onSuccess) {
   // Akun demo — collapsible agar login tetap ringkas (tanpa scroll berlebih)
   const demoGrid = el('div', { class: 'demo-grid' });
   for (const u of USERS) {
-    const secLbl = u.section ? ' · ' + SECTIONS[u.section] : '';
     const initials = u.name.split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
     demoGrid.appendChild(el('button', {
       type: 'button', class: 'demo-acc',
@@ -81,7 +80,7 @@ export function renderLoginView(onSuccess) {
       el('span', { class: 'demo-avatar' }, initials),
       el('span', { class: 'min-w-0' }, [
         el('span', { class: 'demo-name' }, u.name),
-        el('span', { class: 'demo-role' }, roleLabel(u) + secLbl),
+        el('span', { class: 'demo-role' }, roleLabel(u)),
       ]),
     ]));
   }

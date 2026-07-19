@@ -11,9 +11,11 @@ import * as auth from '../auth.js';
 import { createCategoryView } from './genericCategory.js';
 import { renderThresholds } from './thresholds.js';
 import { renderAssistant } from './assistant.js';
+import { renderVerifikasi } from './verifikasi.js';
 
 const VIEW_RENDERERS = {
-  thresholds: renderThresholds,
+  standar: renderThresholds,     // Standar Parameter (dimiliki Lab)
+  verifikasi: renderVerifikasi,  // Antrean QA MPM
   assistant: renderAssistant,
 };
 

@@ -317,6 +317,7 @@ td.cell-bahaya  { background: #fdf1f2; }
 /* =========================== UTILITAS =========================== */
 .muted { color: var(--muted); }
 .chip { display: inline-block; padding: 0.18rem 0.65rem; border-radius: 999px; font-size: 0.76rem; font-weight: 600; background: var(--brand-050); color: var(--brand-700); }
+.freq-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; color: var(--brand-700); background: var(--brand-050); border: 1px solid #dbe8fe; padding: 0.18rem 0.6rem; border-radius: 999px; }
 .divider { height: 1px; background: var(--line); }
 .empty-state { text-align: center; color: #9aa39c; padding: 2.5rem 1rem; font-size: 0.95rem; }
 

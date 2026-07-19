@@ -29,7 +29,7 @@ export function createCategoryView(categoryId) {
       el('span', { html: '＋' }), 'Tambah Data',
     ]);
     const countChip = el('span', { class: 'chip' }, '0 baris');
-    const readonlyChip = el('span', { class: 'chip chip-muted' }, '🔒 Mode baca');
+    const readonlyChip = el('span', { class: 'chip chip-muted' }, (maySahkan || mayPeriksa) ? '✔ Mode pemeriksaan' : '🔒 Mode baca');
     const actions = mayInput ? [countChip, addBtn] : [countChip, readonlyChip];
 
     const header = el('div', { class: 'flex items-start justify-between gap-4 flex-wrap' }, [
@@ -39,6 +39,7 @@ export function createCategoryView(categoryId) {
           el('h1', { class: 'text-2xl' }, category.title),
         ]),
         el('p', { class: 'muted text-sm leading-relaxed' }, category.desc || ''),
+        category.frekuensi ? el('div', { class: 'mt-2' }, el('span', { class: 'freq-badge' }, '⏱ ' + category.frekuensi)) : null,
       ]),
       el('div', { class: 'flex items-center gap-2' }, actions),
     ]);
@@ -96,6 +97,11 @@ export function createCategoryView(categoryId) {
         onDelete: (rec) => { if (confirm('Hapus baris data ini?')) { api.remove(category.collection, rec.id); refresh(); } },
         onSahkan: (rec) => verify(rec, 'sahkan'),
         onPeriksa: (rec) => verify(rec, 'periksa'),
+        cardExtra: (category.id === 'temuanLab' && auth.canApplyTemuan(user))
+          ? (rec) => (rec.status !== 'Diterapkan'
+              ? el('button', { class: 'btn btn-approve btn-sm', onClick: () => { api.update(category.collection, rec.id, { status: 'Diterapkan', diterapkanOleh: auth.userStamp(user) }); refresh(); } }, 'Tandai Diterapkan')
+              : null)
+          : null,
       })));
     }
 

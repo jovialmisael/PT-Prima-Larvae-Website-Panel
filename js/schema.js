@@ -62,7 +62,7 @@ export const CATEGORIES = [
       { key: 'doc', label: 'Day (DOC)', type: 'number', unit: 'hari' },
       { key: 'count', label: 'Count (populasi)', type: 'number', unit: 'ekor' },
       { key: 'stadiaDominan', label: 'Stage', type: 'select', options: STAGES },
-      { key: 'nPriority', label: 'N. Priority (MB)', type: 'text', help: 'Mengikuti form, mis. "MB: 100%"' },
+      { key: 'nPriority', label: 'N. Priority (Sumber Nauplii)', type: 'text', help: 'Sumber nauplii — MB = Maturasi Bali (mis. "MB: 100%" = semua dari Maturasi Bali)' },
       { key: 'realStageAM', label: 'Real Stage AM', type: 'text', group: 'Real Stage', help: 'Distribusi % stadia pagi, mis. "M1 20% M2 53% M3 27%"' },
       { key: 'realStagePM', label: 'Real Stage PM', type: 'text', group: 'Real Stage', help: 'Distribusi % stadia sore' },
       { key: 'bacterialBefore', label: 'Bacterial Count Before', type: 'text', group: 'Bacterial Count', help: 'Koloni (y=kuning); TNTC bila terlalu banyak' },
@@ -81,7 +81,7 @@ export const CATEGORIES = [
       { key: 'hasilMikro', label: 'Hasil Mikro (Vibrio)', type: 'select', options: ADA, threshold: { badValues: ['Ada'] } },
       { key: 'transferSR', label: 'Transfer SR', type: 'number', unit: '%', group: 'Transfer PL', threshold: { safeMin: 80, dangerMin: 60 } },
       { key: 'transferSize', label: 'Transfer Size', type: 'number', unit: 'mm', group: 'Transfer PL' },
-      { key: 'remarks', label: 'REMARKS', type: 'textarea', help: 'Legenda kode — pro: protozoa · vort: vorticella · zoo: zoothamnium · penvort: penempelan vorticella · nec: nekrosis · can: kanibalisme · mati: mortalitas · PM: problem molting · fil: filamen · foul: fouling · gumpal: gumpalan · art: sisa artemia · pecah: badan pecah · kosong/0=: usus kosong · tel: telson · abn: abnormal · kec: kecil/kerdil · jel: jelly gut · AK: alkalinitas / air keruh · MB: mutu/grade nauplii' },
+      { key: 'remarks', label: 'REMARKS', type: 'textarea', help: 'Legenda kode — pro: protozoa · vort: vorticella · zoo: zoothamnium · penvort: penempelan vorticella · nec: nekrosis · can: kanibalisme · mati: mortalitas · PM: problem molting · fil: filamen · foul: fouling · gumpal: gumpalan · art: sisa artemia · pecah: badan pecah · kosong/0=: usus kosong · tel: telson · abn: abnormal · kec: kecil/kerdil · jel: jelly gut · AK: alkalinitas / air keruh · MB: Maturasi Bali (sumber nauplii)' },
     ],
   },
   {

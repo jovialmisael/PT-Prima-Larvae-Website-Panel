@@ -81,7 +81,7 @@ export const CATEGORIES = [
       { key: 'hasilMikro', label: 'Hasil Mikro (Vibrio)', type: 'select', options: ADA, threshold: { badValues: ['Ada'] } },
       { key: 'transferSR', label: 'Transfer SR', type: 'number', unit: '%', group: 'Transfer PL', threshold: { safeMin: 80, dangerMin: 60 } },
       { key: 'transferSize', label: 'Transfer Size', type: 'number', unit: 'mm', group: 'Transfer PL' },
-      { key: 'remarks', label: 'REMARKS', type: 'textarea', help: 'Kode SOP lain (mis. kec, art, AK, jel, foul, gumpal) ditulis di sini' },
+      { key: 'remarks', label: 'REMARKS', type: 'textarea', help: 'Legenda kode — pro: protozoa · vort: vorticella · zoo: zoothamnium · penvort: penempelan vorticella · nec: nekrosis · can: kanibalisme · mati: mortalitas · PM: problem molting · fil: filamen · foul: fouling · gumpal: gumpalan · art: sisa artemia · pecah: badan pecah · kosong/0=: usus kosong · tel: telson · abn: abnormal · kec: kecil/kerdil · jel: jelly gut · AK: air keruh · MB: mutu/grade nauplii' },
     ],
   },
   {
@@ -238,7 +238,7 @@ export const CATEGORIES = [
       { key: 'jumlahKantong', label: 'Jumlah Kantong', type: 'number', unit: 'kantong', group: 'Panen' },
       { key: 'doaSurvival', label: 'Survival saat Tiba', type: 'number', unit: '%', group: 'Panen', threshold: { safeMin: 95, dangerMin: 85 } },
       { key: 'tambakTujuan', label: 'Tambak Tujuan', type: 'text', group: 'Panen' },
-      { key: 'remarks', label: 'REMARKS', type: 'textarea' },
+      { key: 'remarks', label: 'REMARKS', type: 'textarea', help: 'Legenda kode — pro: protozoa · vort: vorticella · nec: nekrosis · can: kanibalisme · mati: mortalitas · PM: problem molting · fil: filamen · foul: fouling · gumpal: gumpalan · art: sisa artemia · pecah: badan pecah · kosong/0=: usus kosong · tel: telson · abn: abnormal · kec: kecil/kerdil · jel: jelly gut · AK: air keruh' },
     ],
   },
   {
@@ -377,5 +377,12 @@ export const GLOSSARY = {
   'salinitas': 'Kadar garam air (ppt).',
   'vorticella': 'Protozoa penempel pada larva — tanda kualitas air/tank menurun.',
   'zoothamnium': 'Protozoa penempel koloni — indikator kualitas menurun.',
+  'Protozoa': 'Protozoa penempel (Vorticella/Zoothamnium) — indikator kualitas air menurun.',
+  'Nekrosis': 'Jaringan mati/menghitam pada tubuh larva.',
+  'Kanibalisme': 'Larva memakan sesama; dipicu stadia tidak seragam.',
+  'Mortalitas': 'Persentase larva mati (kode "mati").',
+  'Filamen': 'Bakteri filamen menempel di air/tubuh larva (kode "fil").',
+  'jelly gut': 'Usus tampak seperti jeli/tidak terisi normal — pencernaan/pakan buruk (kode "jel").',
+  'kecil': 'Larva/PL kecil atau kerdil (kode "kec") — pertumbuhan tertinggal.',
   'kondisi usus': 'Skor keterisian usus larva; % usus penuh menandakan larva makan cukup.',
 };

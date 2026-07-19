@@ -69,8 +69,8 @@ const labMikro = [
 
 // ---------- Lab: cek harian larva ----------
 const labCekLarva = [
-  { id: 'cl-1', tanggal: dateStr(1), tankId: 'tank-1', stadiaDominan: 'Z3', doc: 9, mortalitas: 3, abnormal: 2, nekrosis: 0, kanibalisme: 1, problemMolting: 3, protozoa: 'Tidak ada', zoothamnium: 'Tidak ada', vorticella: 'Tidak ada', filamen: 'Tidak ada', sisaAlgae: 'Sedikit', kondisiUsus: 92, hasilMikro: 'Tidak ada', status: 'Diperiksa', dibuatOleh: person('Analis Lab', 'analisLab', 1), disahkanOleh: person('Kepala Lab', 'kepalaLab', 1), diperiksaOleh: person('Kepala MPM', 'kepalaMpm', 1), createdAt: stamp(1), updatedAt: stamp(1) },
-  { id: 'cl-2', tanggal: dateStr(0), tankId: 'tank-3', stadiaDominan: 'Z2', doc: 8, mortalitas: 12, abnormal: 8, nekrosis: 5, kanibalisme: 4, problemMolting: 16, protozoa: 'Banyak', zoothamnium: 'Sedikit', vorticella: 'Sedikit', filamen: 'Sedikit', sisaAlgae: 'Banyak', kondisiUsus: 45, hasilMikro: 'Ada', status: 'Draft', dibuatOleh: person('Analis Lab', 'analisLab', 0), createdAt: stamp(0), updatedAt: stamp(0) },
+  { id: 'cl-1', tanggal: dateStr(1), tankId: 'tank-1', stadiaDominan: 'Z3', doc: 9, mortalitas: 3, abnormal: 2, nekrosis: 0, kanibalisme: 1, problemMolting: 3, protozoa: 'Tidak ada', zoothamnium: 'Tidak ada', vorticella: 'Tidak ada', filamen: 'Tidak ada', sr: 96, ususKosong: 8, count: 9303, hasilMikro: 'Tidak ada', status: 'Diperiksa', dibuatOleh: person('Analis Lab', 'analisLab', 1), disahkanOleh: person('Kepala Lab', 'kepalaLab', 1), diperiksaOleh: person('Kepala MPM', 'kepalaMpm', 1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'cl-2', tanggal: dateStr(0), tankId: 'tank-3', stadiaDominan: 'Z2', doc: 8, mortalitas: 12, abnormal: 8, nekrosis: 5, kanibalisme: 4, problemMolting: 16, protozoa: 'Banyak', zoothamnium: 'Sedikit', vorticella: 'Sedikit', filamen: 'Sedikit', penvort: 4, sr: 72, ususKosong: 55, count: 6400, hasilMikro: 'Ada', status: 'Draft', dibuatOleh: person('Analis Lab', 'analisLab', 0), createdAt: stamp(0), updatedAt: stamp(0) },
 ];
 
 // ---------- Lab: kualitas algae ----------

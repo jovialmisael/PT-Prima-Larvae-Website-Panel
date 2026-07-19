@@ -99,7 +99,9 @@ function recordCard(category, rec, opts) {
 
 export function renderRecordList(category, records, opts = {}) {
   if (!records.length) {
-    return el('div', { class: 'empty-state' }, 'Belum ada data. Klik “Tambah Data” untuk mulai mencatat.');
+    return el('div', { class: 'empty-state' }, opts.canEdit
+      ? 'Belum ada riwayat data. Klik “Tambah Data” untuk mulai mencatat.'
+      : 'Belum ada riwayat data.');
   }
   const grid = el('div', { class: 'rec-grid' });
   for (const rec of records) grid.appendChild(recordCard(category, rec, opts));

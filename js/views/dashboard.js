@@ -98,7 +98,7 @@ export function renderDashboard() {
     }
     alertCard.appendChild(list);
     if (alerts.length > shown.length) {
-      alertCard.appendChild(el('div', { class: 'px-5 py-3 text-sm muted border-t border-[#f0f2f0]' },
+      alertCard.appendChild(el('div', { class: 'px-5 py-3 text-sm muted border-t border-[#f1f5f9]' },
         `Menampilkan 6 dari ${alerts.length} peringatan. Buka menu terkait untuk selengkapnya.`));
     }
   }

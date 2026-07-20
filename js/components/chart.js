@@ -80,8 +80,8 @@ function fieldChartCard(category, field, records, dates, tanks) {
         },
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#8a938c' } },
-        y: { beginAtZero: false, border: { display: false }, ticks: { font: { size: 11 }, color: '#8a938c', maxTicksLimit: 5 }, grid: { color: '#eef2f0' } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8' } },
+        y: { beginAtZero: false, border: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8', maxTicksLimit: 5 }, grid: { color: '#eef2f6' } },
       },
     },
   });

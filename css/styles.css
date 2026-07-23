@@ -121,13 +121,58 @@ a:focus-visible, button:focus-visible, .nav-link:focus-visible, .tab:focus-visib
 /* --- Status verifikasi + tombol --- */
 .verif { display: inline-block; padding: 0.16rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
 .v-draft { background: #eef2f6; color: #55606c; }
-.v-disahkan { background: #e0edfb; color: #1d5fa8; }
-.v-diperiksa { background: #e3f4ee; color: #1f7a58; }
+.v-kasie { background: #e0edfb; color: #1d5fa8; }
+.v-qc { background: #ecebfb; color: #4f46e5; }
+.v-sah { background: #e3f4ee; color: #1f7a58; }
 .btn-approve { background: #fff; color: #1d5fa8; border-color: #bcd6f2; }
 .btn-approve:hover { background: #eff5fd; }
 .btn-verify { background: var(--brand); color: #fff; border: 1px solid transparent; }
 .btn-verify:hover { background: var(--brand-700); }
 .chip-muted { background: #eef2f6; color: #64748b; }
+
+/* --- Panel section pada satu Form (formView) --- */
+.form-section { border: 1px solid #e2e8f0; border-radius: 1rem; padding: 0.75rem 1rem 1rem; background: #fff; }
+.form-section-mine { border-color: #bcd6f2; box-shadow: 0 0 0 1px #dbeafe inset; }
+.form-section-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.section-owner { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.16rem 0.6rem; border-radius: 999px; }
+.owner-mine { background: #e0edfb; color: #1d5fa8; }
+.owner-other { background: #f1f5f9; color: #64748b; }
+
+/* --- Lembar Harian Tank (tabel lebar, sengaja bisa geser horizontal) --- */
+.sheet-table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 0.8rem; }
+.sheet-table th, .sheet-table td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #eef2f6; white-space: nowrap; text-align: left; }
+.sheet-table thead th { position: sticky; top: 0; background: #f8fafc; color: #475569; font-weight: 700; font-size: 0.72rem; z-index: 1; }
+.sheet-table td.num, .sheet-table th.num { text-align: right; }
+.sheet-sticky { position: sticky; left: 0; background: #fff; z-index: 2; }
+.sheet-table thead th.sheet-sticky { z-index: 3; background: #f8fafc; }
+.sheet-table tbody tr:hover td { background: #f8fbff; }
+.sheet-cell.sheet-waspada { background: #fff7ed; color: #b45309; font-weight: 600; }
+.sheet-cell.sheet-bahaya { background: #fef2f2; color: #b91c1c; font-weight: 700; }
+.chip-berhasil { background: #e3f4ee; color: #1f7a58; }
+.chip-gagal { background: #fdeaea; color: #c0392b; }
+
+/* --- Standar Parameter (batas + tindakan + kontak + kalibrasi) --- */
+.std-row { border: 1px solid #eef2f6; border-radius: 0.9rem; padding: 0.75rem 0.9rem; background: #fcfdff; }
+.std-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
+.std-sumber { font-size: 0.68rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; }
+.src-buku { background: #f1f5f9; color: #64748b; }
+.src-kalibrasi { background: #e3f4ee; color: #1f7a58; }
+.std-bounds { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.std-bound { display: flex; flex-direction: column; gap: 0.15rem; background: #fff; border: 1px solid #eef2f6; border-radius: 0.5rem; padding: 0.25rem 0.5rem; }
+.std-bound-label { font-size: 0.66rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.std-action { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.std-action-line { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.std-mini-label { font-size: 0.7rem; font-weight: 700; color: #475569; min-width: 4.5rem; }
+.std-action-text { font-size: 0.85rem; color: #334155; }
+.std-action-line .field-input { flex: 1; min-width: 12rem; }
+.std-buttons { margin-top: 0.6rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.std-calib:empty { display: none; }
+.calib-box { margin-top: 0.6rem; border: 1px dashed #bcd6f2; border-radius: 0.7rem; padding: 0.7rem 0.8rem; background: #f6f9ff; }
+.calib-warn { margin-top: 0.4rem; font-size: 0.78rem; color: #b45309; background: #fff7ed; border-radius: 0.4rem; padding: 0.3rem 0.5rem; }
+
+/* --- Baris tindakan pada kartu peringatan (Beranda) --- */
+.alert-action { font-size: 0.76rem; color: #64748b; margin-top: 0.2rem; display: flex; flex-wrap: wrap; gap: 0.15rem 0.6rem; }
+.alert-contact { font-weight: 700; color: #1d5fa8; }
 
 /* =========================== HERO (Beranda) =========================== */
 .hero {

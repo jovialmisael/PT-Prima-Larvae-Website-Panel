@@ -268,6 +268,8 @@ export const CATEGORIES = [
       { key: 'stadiaSekarang', label: 'Stadia Sekarang', type: 'select', options: STAGES },
       { key: 'tambakTujuan', label: 'Tambak Tujuan', type: 'text' },
       { key: 'status', label: 'Status', type: 'select', options: ['Aktif', 'Panen', 'Selesai'] },
+      { key: 'hasilSiklus', label: 'Hasil Siklus', type: 'select', options: ['Berjalan', 'Berhasil', 'Gagal'], help: 'Dipakai untuk banding siklus & kalibrasi batas dari data siklus berhasil' },
+      { key: 'srFinal', label: 'SR Akhir Siklus', type: 'number', unit: '%' },
       { key: 'catatan', label: 'Catatan', type: 'textarea' },
     ],
   },
@@ -284,23 +286,22 @@ export const HUBS = [
     id: 'lab', division: 'lab', title: 'Divisi Lab', subtitle: 'Mutu · analisis · standar', icon: 'flask',
     tabs: [
       { kind: 'view', ref: 'standar', label: 'Standar Parameter' },
-      { kind: 'category', ref: 'labMikro' },
-      { kind: 'category', ref: 'labPcrKimia' },
-      { kind: 'category', ref: 'labCekLarva' },
-      { kind: 'category', ref: 'labAlgae' },
+      { kind: 'form', ref: 'form-13' },
+      { kind: 'form', ref: 'form-16' },
+      { kind: 'form', ref: 'form-algae' },
+      { kind: 'form', ref: 'form-pcr' },
       { kind: 'category', ref: 'temuanLab' },
     ],
   },
   {
     id: 'produksi', division: 'produksi', title: 'Divisi Produksi', subtitle: 'Pencatatan SOP operasional', icon: 'gears',
     tabs: [
-      { kind: 'category', ref: 'prodPersiapanWater' },
-      { kind: 'category', ref: 'prodAlgae' },
-      { kind: 'category', ref: 'prodArtemia' },
-      { kind: 'category', ref: 'prodInduk' },
-      { kind: 'category', ref: 'prodLarvae' },
-      { kind: 'category', ref: 'prodPostLarvae' },
-      { kind: 'category', ref: 'prodTindakan' },
+      { kind: 'form', ref: 'form-06' },
+      { kind: 'form', ref: 'form-water' },
+      { kind: 'form', ref: 'form-13' },
+      { kind: 'form', ref: 'form-16' },
+      { kind: 'form', ref: 'form-algae' },
+      { kind: 'form', ref: 'form-23' },
       { kind: 'category', ref: 'temuanLab', label: 'Rekomendasi Lab' },
       { kind: 'view', ref: 'standar', label: 'Standar (baca)' },
     ],
@@ -310,6 +311,12 @@ export const HUBS = [
     tabs: [
       { kind: 'view', ref: 'verifikasi', label: 'Verifikasi' },
       { kind: 'view', ref: 'standar', label: 'Standar (baca)' },
+    ],
+  },
+  {
+    id: 'analisis', division: 'sistem', title: 'Analisis', subtitle: 'Lembar harian & banding siklus', icon: 'chart',
+    tabs: [
+      { kind: 'view', ref: 'lembar', label: 'Lembar Harian Tank' },
     ],
   },
   {
@@ -323,15 +330,75 @@ export const HUBS = [
 
 export function getHubs() { return HUBS; }
 export function getHub(id) { return HUBS.find((h) => h.id === id) || null; }
+
+/* ============================ FORMS (form fisik → section per-role) ============
+   Satu form = beberapa section; tiap section = satu kategori milik satu divisi.
+   Form campuran (13/16/algae) muncul di hub Produksi & Lab; tiap divisi hanya
+   boleh menginput section miliknya (canInput per divisi). Lihat docs/model-peran-alur.md. */
+export const FORMS = [
+  { id: 'form-06',    no: '06',  title: 'Kualitas Air Maturasi & Spawner', sections: ['prodInduk'] },
+  { id: 'form-water', no: '—',   title: 'Persiapan Water',                  sections: ['prodPersiapanWater'] },
+  { id: 'form-13',    no: '13',  title: 'Observasi Bak Larvae',            sections: ['prodLarvae', 'labCekLarva', 'labMikro'] },
+  { id: 'form-16',    no: '16',  title: 'Observasi Bak Post Larvae',       sections: ['prodPostLarvae'] },
+  { id: 'form-algae', no: '—',   title: 'Algae & Artemia',                 sections: ['prodAlgae', 'prodArtemia', 'labAlgae'] },
+  { id: 'form-23',    no: '23',  title: 'Pemakaian Probiotik & Tindakan',  sections: ['prodTindakan'] },
+  { id: 'form-pcr',   no: '—',   title: 'PCR & Kimia',                     sections: ['labPcrKimia'] },
+];
+export function getForm(id) { return FORMS.find((f) => f.id === id) || null; }
+export function formForCategory(catId) { return FORMS.find((f) => f.sections.includes(catId)) || null; }
+
+/* ============================ TINDAKAN DEFAULT (Prinsip 1) ====================
+   Tiap parameter perlu batas + TINDAKAN saat terlampaui. Ini nilai default
+   (dapat ditimpa Kabag Lab di Standar Parameter). Kontak default = Kabag divisi. */
+export const DEFAULT_ACTIONS = {
+  nh3: 'Tingkatkan pergantian air, kurangi pakan, cek penyiponan. Pantau NH3 (bukan hanya TAN).',
+  do: 'Kencangkan aerasi, kurangi beban organik, cek blower/oksigen.',
+  tvc: 'Cek sumber (pakan hidup/air), pertimbangkan pergantian air & probiotik; ulangi plating.',
+  tcbsLuminescent: 'BAHAYA: isolasi tank, pergantian air besar, probiotik; lacak sumber luminescent segera.',
+  tcbsHijau: 'Waspadai Vibrio hijau; tingkatkan sanitasi, cek pakan hidup & sumber air.',
+  vibrio: 'Konfirmasi mikro, tingkatkan sanitasi & probiotik; kurangi pakan hidup mentah.',
+  sr: 'Cek kualitas air (NH3, nitrit, DO), mikrobiologi, dan sinkronisasi molting.',
+  mortalitas: 'Telusuri penyebab (air/mikro/pakan); pisahkan bak terdampak bila perlu.',
+  nekrosis: 'Cek kualitas air & bakteri; pertimbangkan treatment sesuai rekomendasi Lab.',
+  nitrit: 'Pergantian air, kurangi pakan berlebih, cek filter biologis.',
+  phSore: 'Kelola blooming algae & aerasi; jaga selisih pH pagi–sore < 0,5.',
+  phPagi: 'Jaga pH dalam rentang; cek alkalinitas & blooming algae.',
+  suhuSore: 'Kelola suhu (naungan/heater); hindari fluktuasi harian > 1,5°C.',
+  suhuDelta: 'Perkecil fluktuasi suhu harian; cek naungan/aerasi.',
+  orpIn: 'Sesuaikan dosis ozon; jaga ORP In 530–550 mV (maks 570).',
+  orpOn: 'Cek ozon aktif; target ORP On 150–200 mV.',
+  resirkulasi: 'Perpanjang resirkulasi > 12 jam sebelum air kontak larva.',
+  usiaKarbon: 'Ganti karbon aktif; catat tanggal penggantian.',
+  suhuTandon: 'Stabilkan suhu tandon 29–31°C sebelum dipakai.',
+  grade: 'Perbaiki kultur algae (nutrien/cahaya/kepadatan); jangan pakai algae grade C.',
+  hatchingRate: 'Cek kualitas kista & kondisi penetasan (suhu, aerasi, salinitas).',
+  fertil: 'Evaluasi kualitas induk & pakan maturasi; cek rasio jantan-betina.',
+  hatching: 'Cek kualitas telur & air pemijahan; evaluasi induk.',
+  cv: 'CV melebar = pertumbuhan tak merata (sinyal awal EHP); cek grading & mikro.',
+  def: 'Cek kualitas air & nutrisi; telusuri deformitas ke sumber.',
+  defmt: 'Cek kualitas air & nutrisi; telusuri deformitas ke sumber.',
+};
+export const GENERIC_ACTION = 'Bandingkan dengan standar, cek parameter terkait, catat tindakan; hubungi kontak bila melewati batas bahaya.';
+
 export function tabLabel(tab) {
   if (tab.label) return tab.label;
+  if (tab.kind === 'form') { const f = getForm(tab.ref); return f ? (f.no !== '—' ? `Form ${f.no} · ${f.title}` : f.title) : tab.ref; }
   if (tab.kind === 'category') { const c = getCategory(tab.ref); return c ? c.title : tab.ref; }
   return tab.ref;
 }
+// Hub yang memuat kategori (langsung sebagai tab kategori, atau lewat form)
 export function hubForCategory(catId) {
-  return HUBS.find((h) => h.tabs && h.tabs.some((t) => t.kind === 'category' && t.ref === catId)) || null;
+  const form = formForCategory(catId);
+  return HUBS.find((h) => h.tabs && h.tabs.some((t) =>
+    (t.kind === 'category' && t.ref === catId) ||
+    (t.kind === 'form' && form && t.ref === form.id))) || null;
 }
 export function routeForCategory(catId) {
+  const cat = getCategory(catId);
+  const form = formForCategory(catId);
+  // Arahkan ke hub divisi pemilik kategori (bukan hub pertama yang memuat form campuran)
+  const hubId = cat && (cat.division === 'lab' ? 'lab' : cat.division === 'produksi' ? 'produksi' : cat.division === 'sistem' ? 'sistem' : null);
+  if (form && hubId && getHub(hubId)) return `#/h/${hubId}/${form.id}`;
   const h = hubForCategory(catId);
   return h ? `#/h/${h.id}/${catId}` : '#/beranda';
 }

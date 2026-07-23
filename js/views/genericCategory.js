@@ -18,8 +18,8 @@ export function createCategoryView(categoryId) {
     const category = getCategory(categoryId);
     const user = auth.currentUser();
     const mayInput = auth.canInput(user, category.id);
-    const maySahkan = auth.canSahkan(user, category.id);
-    const mayPeriksa = auth.canPeriksa(user, category.id);
+    const mayApprove = auth.canParafKasie(user, category.id) || auth.canParafQc(user) || auth.canSahkanMpm(user);
+    const approvalFor = (rec) => auth.nextApproval(user, category.id, rec.status);
 
     const root = el('div', { class: 'space-y-6' });
     const trendsWrap = el('div', {});
@@ -29,7 +29,7 @@ export function createCategoryView(categoryId) {
       el('span', { html: '＋' }), 'Tambah Data',
     ]);
     const countChip = el('span', { class: 'chip' }, '0 baris');
-    const readonlyChip = el('span', { class: 'chip chip-muted' }, (maySahkan || mayPeriksa) ? '✔ Mode pemeriksaan' : '🔒 Mode baca');
+    const readonlyChip = el('span', { class: 'chip chip-muted' }, mayApprove ? '✔ Mode pengesahan' : '🔒 Mode baca');
     const actions = mayInput ? [countChip, addBtn] : [countChip, readonlyChip];
 
     const header = el('div', { class: 'flex items-start justify-between gap-4 flex-wrap' }, [
@@ -67,9 +67,12 @@ export function createCategoryView(categoryId) {
     function openDetail(record) {
       const status = record.status || 'Draft';
       const btns = [];
-      if (mayInput && status !== 'Diperiksa') btns.push(el('button', { class: 'btn btn-ghost', onClick: () => { closeDrawer(); openForm(record); } }, 'Edit'));
-      if (maySahkan && status === 'Draft') btns.push(el('button', { class: 'btn btn-approve', onClick: () => verify(record, 'sahkan') }, 'Sahkan'));
-      if (mayPeriksa && status === 'Disahkan') btns.push(el('button', { class: 'btn btn-verify', onClick: () => verify(record, 'periksa') }, 'Periksa'));
+      if (mayInput && status === 'Draft') btns.push(el('button', { class: 'btn btn-ghost', onClick: () => { closeDrawer(); openForm(record); } }, 'Edit'));
+      const approval = approvalFor(record);
+      if (approval) {
+        const cls = approval.step === 'sahkanMpm' ? 'btn-verify' : 'btn-approve';
+        btns.push(el('button', { class: `btn ${cls}`, onClick: () => verify(record, approval.step) }, approval.label));
+      }
       btns.push(el('button', { class: 'btn btn-ghost', onClick: closeDrawer }, 'Tutup'));
       openDrawer({
         title: 'Detail — ' + category.title,
@@ -91,12 +94,12 @@ export function createCategoryView(categoryId) {
         el('h3', { class: 'text-base' }, 'Riwayat Data'),
       ]));
       listCard.appendChild(el('div', { class: 'p-4 pt-2' }, renderRecordList(category, records, {
-        canEdit: mayInput, canSahkan: maySahkan, canPeriksa: mayPeriksa,
+        canEdit: mayInput,
+        getApproval: approvalFor,
+        onApprove: (rec, step) => verify(rec, step),
         onDetail: openDetail,
         onEdit: openForm,
         onDelete: (rec) => { if (confirm('Hapus baris data ini?')) { api.remove(category.collection, rec.id); refresh(); } },
-        onSahkan: (rec) => verify(rec, 'sahkan'),
-        onPeriksa: (rec) => verify(rec, 'periksa'),
         cardExtra: (category.id === 'temuanLab' && auth.canApplyTemuan(user))
           ? (rec) => (rec.status !== 'Diterapkan'
               ? el('button', { class: 'btn btn-approve btn-sm', onClick: () => { api.update(category.collection, rec.id, { status: 'Diterapkan', diterapkanOleh: auth.userStamp(user) }); refresh(); } }, 'Tandai Diterapkan')

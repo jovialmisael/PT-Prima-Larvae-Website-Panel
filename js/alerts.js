@@ -4,9 +4,12 @@
    Batas efektif = default schema DITIMPA override dari api (view Batas).
    =========================================================================== */
 
-import { CATEGORIES } from './schema.js';
+import { CATEGORIES, DEFAULT_ACTIONS, GENERIC_ACTION } from './schema.js';
 import { computeField, num } from './compute.js';
 import * as api from './api.js';
+
+// Kontak eskalasi default per divisi = Kabag divisi terkait
+const KONTAK_DEFAULT = { lab: 'kabagLab', produksi: 'kabagProd', mpm: 'kabagMpm' };
 
 // Field yang dipantau: punya threshold, atau field PCR (Positif = bahaya)
 export function isMonitored(field) {
@@ -55,6 +58,20 @@ export function evaluate(value, t) {
   return 'aman';
 }
 
+/* Standar lengkap sebuah field: batas efektif + tindakan + kontak + sumber.
+   division dipakai untuk kontak default (Kabag divisi). Dipakai alert, Standar
+   Parameter, dan Asisten AI. */
+export function resolveStandard(field, division) {
+  const override = api.getThresholdOverride(field.key) || {};
+  return {
+    ...resolveThreshold(field),
+    tindakan: override.tindakan || DEFAULT_ACTIONS[field.key] || GENERIC_ACTION,
+    kontakRole: override.kontakRole || (division ? KONTAK_DEFAULT[division] : null),
+    sumber: override.sumber || 'buku',
+    sumberTgl: override.sumberTgl || null,
+  };
+}
+
 // Status sebuah field pada sebuah record (menangani field computed)
 export function evalField(field, record) {
   const t = resolveThreshold(field);
@@ -92,6 +109,7 @@ export function scanAlerts(opts = {}) {
         const status = evalField(field, rec);
         if (status === 'waspada' || status === 'bahaya') {
           const value = field.type === 'computed' ? computeField(field, rec) : rec[field.key];
+          const std = resolveStandard(field, cat.division);
           alerts.push({
             categoryId: cat.id,
             categoryTitle: cat.title,
@@ -104,6 +122,9 @@ export function scanAlerts(opts = {}) {
             tankId: rec.tankId || null,
             tanggal: rec.tanggal || null,
             recordId: rec.id,
+            tindakan: std.tindakan,
+            kontakRole: std.kontakRole,
+            sumber: std.sumber,
           });
         }
       }

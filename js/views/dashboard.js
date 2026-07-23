@@ -4,7 +4,7 @@
    =========================================================================== */
 
 import { el, fmt, fmtDate } from '../dom.js';
-import { getCategory, routeForCategory, hubForCategory } from '../schema.js';
+import { getCategory, routeForCategory } from '../schema.js';
 import * as auth from '../auth.js';
 import { scanAlerts, alertCounts } from '../alerts.js';
 import { statusBadge } from '../components/alertBadge.js';
@@ -47,11 +47,8 @@ export function renderDashboard() {
   const tanks = api.list('tank');
   const aktif = tanks.filter((t) => t.status === 'Aktif').length;
   const rekomendasi = api.list('temuanLab').filter((t) => (t.status || 'Baru') === 'Baru').length;
-  // Peringatan dilingkup ke modul yang boleh diakses peran aktif
-  const alerts = scanAlerts({ days: 10 }).filter((a) => {
-    const hub = hubForCategory(a.categoryId);
-    return hub && auth.hubAllowed(user, hub);
-  });
+  // Peringatan dilingkup ke divisi yang relevan bagi peran aktif (MPM lintas divisi)
+  const alerts = scanAlerts({ days: 10 }).filter((a) => auth.categoryVisible(user, a.categoryId));
   const counts = alertCounts(alerts);
   const st = overallStatus(counts);
 
@@ -92,6 +89,10 @@ export function renderDashboard() {
         el('div', { class: 'flex-1 min-w-0' }, [
           el('div', { class: 'font-semibold truncate' }, `${a.field}${tankLabel ? ' · ' + tankLabel : ''}`),
           el('div', { class: 'text-sm muted' }, `${a.categoryTitle} · ${fmtDate(a.tanggal)}`),
+          a.tindakan ? el('div', { class: 'alert-action' }, [
+            el('span', {}, '→ ' + a.tindakan),
+            a.kontakRole ? el('span', { class: 'alert-contact' }, 'Hubungi: ' + auth.roleLabelOf(a.kontakRole)) : null,
+          ]) : null,
         ]),
         el('div', { class: 'num font-bold whitespace-nowrap' }, `${fmt(a.value)} ${a.unit}`.trim()),
       ]));

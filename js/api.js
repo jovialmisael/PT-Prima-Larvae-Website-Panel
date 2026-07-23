@@ -82,16 +82,17 @@ export function remove(collection, id) {
   write(collection, read(collection).filter((r) => r.id !== id));
 }
 
-/* Transisi status verifikasi (alur form: Draft → Disahkan → Diperiksa).
+/* Transisi status pengesahan berjenjang (alur form fisik):
+   Draft → Diparaf Ka.Sie → Diparaf QC → Disahkan (MPM).
    `stamp` = { name, role, at } dari auth.userStamp(user).
    Di Laravel nanti: divalidasi server (policy) sebelum menyimpan. */
 export function verify(collection, id, step, stamp) {
-  const patch = step === 'sahkan'
-    ? { status: 'Disahkan', disahkanOleh: stamp }
-    : step === 'periksa'
-      ? { status: 'Diperiksa', diperiksaOleh: stamp }
-      : {};
-  return update(collection, id, patch);
+  const map = {
+    parafKasie: { status: 'Diparaf Ka.Sie', diparafKasie: stamp },
+    parafQc:    { status: 'Diparaf QC',      diparafQc: stamp },
+    sahkanMpm:  { status: 'Disahkan',        disahkanMpm: stamp },
+  };
+  return update(collection, id, map[step] || {});
 }
 
 // Cari label sebuah record referensi (mis. nama tank dari id)
@@ -102,7 +103,10 @@ export function refLabel(collection, id, labelKey) {
   return rec[labelKey] || rec.namaTank || rec.kodeBatch || id;
 }
 
-// ---- Override batas (view Batas & Peringatan) ----
+/* ---- Standar parameter (batas + tindakan + kontak + sumber) ------------------
+   Disimpan per fieldKey sebagai override atas default schema. Objek dapat memuat
+   { safeMin, safeMax, dangerMin, dangerMax, tindakan, kontakRole, sumber, sumberTgl }.
+   Kontrak backend: GET/PUT /api/thresholds. */
 export function getThresholdOverrides() {
   try {
     return JSON.parse(localStorage.getItem(THRESHOLD_KEY) || '{}');
@@ -113,12 +117,15 @@ export function getThresholdOverrides() {
 export function getThresholdOverride(fieldKey) {
   return getThresholdOverrides()[fieldKey] || null;
 }
-export function setThresholdOverride(fieldKey, obj) {
+// Gabung patch ke override; key kosong (''/null) dihapus agar default schema dipakai kembali.
+export function patchStandard(fieldKey, patch) {
   const all = getThresholdOverrides();
-  all[fieldKey] = obj;
+  const next = { ...(all[fieldKey] || {}), ...patch };
+  for (const k of Object.keys(next)) { if (next[k] === '' || next[k] == null) delete next[k]; }
+  if (Object.keys(next).length === 0) delete all[fieldKey]; else all[fieldKey] = next;
   localStorage.setItem(THRESHOLD_KEY, JSON.stringify(all));
 }
-export function clearThresholdOverride(fieldKey) {
+export function clearStandard(fieldKey) {
   const all = getThresholdOverrides();
   delete all[fieldKey];
   localStorage.setItem(THRESHOLD_KEY, JSON.stringify(all));
@@ -189,8 +196,9 @@ function buildPlaceholderAnswer(context, question) {
   if (top.length) {
     lines.push('Yang paling perlu diperhatikan:');
     for (const a of top) {
-      const tank = a.tankId ? ' (' + a.tankId + ')' : '';
+      const tank = a.tankLabel ? ' (' + a.tankLabel + ')' : (a.tankId ? ' (' + a.tankId + ')' : '');
       lines.push(`• [${a.status.toUpperCase()}] ${a.field}${tank}: ${a.value ?? '-'} ${a.unit}`.trim());
+      if (a.tindakan) lines.push(`   → Tindakan: ${a.tindakan}${a.kontakLabel ? ' · Hubungi: ' + a.kontakLabel : ''}`);
     }
   }
 

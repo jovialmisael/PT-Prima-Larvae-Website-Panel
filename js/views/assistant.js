@@ -6,6 +6,7 @@
 
 import { el, clear } from '../dom.js';
 import { scanAlerts } from '../alerts.js';
+import * as auth from '../auth.js';
 import * as api from '../api.js';
 
 const SUGGESTIONS = [
@@ -16,7 +17,12 @@ const SUGGESTIONS = [
 ];
 
 function buildContext() {
-  const alerts = scanAlerts({ days: 10 });
+  // Sertakan label kontak agar jawaban bisa menyebut siapa yang dihubungi
+  const alerts = scanAlerts({ days: 10 }).map((a) => ({
+    ...a,
+    tankLabel: a.tankId ? api.refLabel('tank', a.tankId, 'namaTank') : null,
+    kontakLabel: a.kontakRole ? auth.roleLabelOf(a.kontakRole) : null,
+  }));
   return { alerts, generatedAt: new Date().toISOString() };
 }
 

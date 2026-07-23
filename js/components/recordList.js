@@ -13,7 +13,7 @@ import * as api from '../api.js';
 
 function verifBadge(status) {
   const s = status || 'Draft';
-  const cls = s === 'Diperiksa' ? 'v-diperiksa' : s === 'Disahkan' ? 'v-disahkan' : 'v-draft';
+  const cls = s === 'Disahkan' ? 'v-sah' : s === 'Diparaf QC' ? 'v-qc' : s === 'Diparaf Ka.Sie' ? 'v-kasie' : 'v-draft';
   return el('span', { class: 'verif ' + cls }, s);
 }
 
@@ -82,15 +82,14 @@ function recordCard(category, rec, opts) {
   // Aksi
   const acts = el('div', { class: 'rec-actions' });
   acts.appendChild(el('button', { class: 'btn btn-ghost btn-sm', onClick: () => opts.onDetail(rec) }, 'Detail'));
-  if (opts.canEdit && status !== 'Diperiksa') {
+  if (opts.canEdit && status === 'Draft') {
     acts.appendChild(el('button', { class: 'btn btn-ghost btn-sm', onClick: () => opts.onEdit(rec) }, 'Edit'));
     acts.appendChild(el('button', { class: 'btn btn-danger btn-sm', onClick: () => opts.onDelete(rec) }, 'Hapus'));
   }
-  if (opts.canSahkan && status === 'Draft') {
-    acts.appendChild(el('button', { class: 'btn btn-approve btn-sm', onClick: () => opts.onSahkan(rec) }, 'Sahkan'));
-  }
-  if (opts.canPeriksa && status === 'Disahkan') {
-    acts.appendChild(el('button', { class: 'btn btn-verify btn-sm', onClick: () => opts.onPeriksa(rec) }, 'Periksa'));
+  const approval = opts.getApproval ? opts.getApproval(rec) : null;
+  if (approval) {
+    const cls = approval.step === 'sahkanMpm' ? 'btn-verify' : 'btn-approve';
+    acts.appendChild(el('button', { class: `btn ${cls} btn-sm`, onClick: () => opts.onApprove(rec, approval.step) }, approval.label));
   }
   if (opts.cardExtra) { const ex = opts.cardExtra(rec); if (ex) acts.appendChild(ex); }
 
@@ -140,9 +139,10 @@ export function renderRecordDetail(category, rec) {
   wrap.appendChild(el('div', { class: 'detail-trail' }, [
     el('div', { class: 'detail-group-title' }, 'Riwayat Pengesahan'),
     el('div', { class: 'trail-status' }, verifBadge(rec.status || 'Draft')),
-    trailRow('Dibuat', rec.dibuatOleh),
-    trailRow('Disahkan', rec.disahkanOleh),
-    trailRow('Diperiksa', rec.diperiksaOleh),
+    trailRow('Dibuat (Petugas)', rec.dibuatOleh),
+    trailRow('Diparaf Ka.Sie', rec.diparafKasie),
+    trailRow('Diparaf QC', rec.diparafQc),
+    trailRow('Disahkan MPM', rec.disahkanMpm),
   ]));
 
   return wrap;

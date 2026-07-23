@@ -9,18 +9,22 @@ import { el } from '../dom.js';
 import { getHub } from '../schema.js';
 import * as auth from '../auth.js';
 import { createCategoryView } from './genericCategory.js';
+import { renderFormView } from './formView.js';
 import { renderThresholds } from './thresholds.js';
 import { renderAssistant } from './assistant.js';
 import { renderVerifikasi } from './verifikasi.js';
+import { renderDailySheet } from './dailySheet.js';
 
 const VIEW_RENDERERS = {
   standar: renderThresholds,     // Standar Parameter (dimiliki Lab)
   verifikasi: renderVerifikasi,  // Antrean QA MPM
   assistant: renderAssistant,
+  lembar: renderDailySheet,      // Lembar Harian Tank (analisis)
 };
 
 function renderTabContent(tab) {
   if (tab.kind === 'category') return createCategoryView(tab.ref)(); // header lengkap sendiri
+  if (tab.kind === 'form') return renderFormView(tab.ref);
   const fn = VIEW_RENDERERS[tab.ref];
   return fn ? fn() : el('div', { class: 'empty-state' }, 'Konten tidak ditemukan.');
 }

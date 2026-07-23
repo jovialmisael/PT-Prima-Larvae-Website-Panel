@@ -39,21 +39,56 @@ function buildLayout() {
   const sideFooter = el('div', { class: 'px-3 py-3 border-t border-[#e2e8f0]' }, resetBtn);
 
   sidebarEl = el('aside', {
-    class: 'fixed lg:translate-x-0 -translate-x-full transition-transform z-40 top-0 left-0 h-screen w-72 bg-white border-r border-[#e2e8f0] flex flex-col',
+    class: 'fixed lg:translate-x-0 -translate-x-full transition-transform z-40 top-0 left-0 h-screen w-72 bg-white border-r border-[#e2e8f0] flex flex-col shadow-sm',
   }, [brand, switcherEl, navEl, sideFooter]);
 
   overlayEl = el('div', { class: 'sidebar-overlay hidden', onClick: closeSidebar });
 
-  const topbar = el('div', {
-    class: 'lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#e2e8f0] px-4 py-3 flex items-center gap-3',
+  const u = auth.currentUser();
+  const roleText = u ? auth.roleLabel(u) : '';
+
+  const mobileTopbar = el('div', {
+    class: 'lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#e2e8f0] px-4 py-3 flex items-center justify-between gap-3',
   }, [
-    el('button', { class: 'btn btn-ghost btn-sm', onClick: openSidebar, html: '☰', 'aria-label': 'Buka menu' }),
-    el('div', { class: 'brand-mark', style: 'width:2rem;height:2rem;border-radius:0.6rem', html: ICONS.droplet }),
-    el('div', { class: 'font-display font-semibold text-lg' }, 'Panel Hatchery'),
+    el('div', { class: 'flex items-center gap-3' }, [
+      el('button', { class: 'btn btn-ghost btn-sm', onClick: openSidebar, html: '☰', 'aria-label': 'Buka menu' }),
+      el('div', { class: 'brand-mark', style: 'width:2rem;height:2rem;border-radius:0.6rem', html: ICONS.droplet }),
+      el('div', { class: 'font-display font-semibold text-lg' }, 'Panel Hatchery'),
+    ]),
+    el('div', { class: 'text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200' }, roleText),
+  ]);
+
+  const desktopTopbar = el('div', {
+    class: 'hidden lg:flex sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] px-8 py-3.5 items-center justify-between gap-4',
+  }, [
+    el('div', { class: 'search-box-wrap' }, [
+      el('span', { class: 'search-icon-inside', html: ICONS.search }),
+      el('input', {
+        type: 'text',
+        class: 'search-input-field',
+        placeholder: 'Cari Tank, Parameter, atau Menu...',
+        onInput: (e) => {
+          const val = e.target.value.toLowerCase().trim();
+          if (!val) return;
+          // Melakukan pengalihan cepat jika cocok dengan kategori/tank
+          if (val.includes('tank') || val.includes('t-')) {
+            location.hash = '#/h/prodAir/harianTank';
+          } else if (val.includes('lab') || val.includes('sampel')) {
+            location.hash = '#/h/labWater/labFisikaKimia';
+          }
+        }
+      }),
+    ]),
+    el('div', { class: 'flex items-center gap-3' }, [
+      el('div', { class: 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold' }, [
+        el('span', { class: 'w-2 h-2 rounded-full bg-emerald-500' }),
+        roleText || 'Sistem Aktif',
+      ]),
+    ]),
   ]);
 
   contentEl = el('main', { id: 'content', class: 'p-5 lg:p-8 max-w-[1400px]' });
-  const contentWrap = el('div', { class: 'lg:ml-72 min-h-screen' }, [topbar, contentEl]);
+  const contentWrap = el('div', { class: 'lg:ml-72 min-h-screen flex flex-col bg-[#f8fafc]' }, [mobileTopbar, desktopTopbar, contentEl]);
 
   clear(appEl);
   appEl.appendChild(overlayEl);

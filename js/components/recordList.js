@@ -131,14 +131,32 @@ export function renderRecordDetail(category, rec) {
   }
   flush();
 
-  // Jejak pengesahan
+  // Jejak pengesahan dengan Visual Stepper
+  const status = rec.status || 'Draft';
+  const steps = [
+    { label: 'Draft', done: !!rec.dibuatOleh, active: status === 'Draft' },
+    { label: 'Ka.Sie', done: !!rec.diparafKasie, active: status === 'Diparaf Ka.Sie' },
+    { label: 'QC', done: !!rec.diparafQc, active: status === 'Diparaf QC' },
+    { label: 'MPM', done: !!rec.disahkanMpm || status === 'Disahkan', active: status === 'Disahkan' },
+  ];
+
+  const stepperEl = el('div', { class: 'stepper-bar my-4' });
+  steps.forEach((st, idx) => {
+    stepperEl.appendChild(el('div', { class: `stepper-step ${st.done ? 'done' : ''} ${st.active ? 'active' : ''}` }, [
+      el('div', { class: 'stepper-num' }, st.done ? '✓' : String(idx + 1)),
+      el('div', { class: 'stepper-label' }, st.label),
+    ]));
+  });
+
   const trailRow = (label, stamp) => el('div', { class: 'trail-row' }, [
     el('span', { class: 'trail-label' }, label),
     el('span', { class: 'trail-val' }, stamp ? `${stamp.name} · ${fmtDate(stamp.at)}` : '—'),
   ]);
+
   wrap.appendChild(el('div', { class: 'detail-trail' }, [
-    el('div', { class: 'detail-group-title' }, 'Riwayat Pengesahan'),
-    el('div', { class: 'trail-status' }, verifBadge(rec.status || 'Draft')),
+    el('div', { class: 'detail-group-title' }, 'Alur Pengesahan Dokumen'),
+    stepperEl,
+    el('div', { class: 'trail-status mb-3' }, verifBadge(status)),
     trailRow('Dibuat (Petugas)', rec.dibuatOleh),
     trailRow('Diparaf Ka.Sie', rec.diparafKasie),
     trailRow('Diparaf QC', rec.diparafQc),

@@ -81,19 +81,64 @@ export function createCategoryView(categoryId) {
       });
     }
 
+    let selectedTankFilter = 'semua';
+    let selectedStatusFilter = 'semua';
+
+    function renderFilterToolbar(records) {
+      const tanksInCategory = [...new Set(records.map((r) => r.tankId).filter(Boolean))];
+      const toolbar = el('div', { class: 'filter-toolbar' });
+
+      toolbar.appendChild(el('span', { class: 'text-xs font-bold text-slate-500 uppercase tracking-wider' }, 'Filter Data:'));
+
+      if (tanksInCategory.length) {
+        const tankSelect = el('select', {
+          class: 'filter-select',
+          onChange: (e) => { selectedTankFilter = e.target.value; refresh(); }
+        }, [
+          el('option', { value: 'semua' }, 'Semua Tank'),
+          ...tanksInCategory.map((tId) => el('option', { value: tId, selected: selectedTankFilter === tId }, api.refLabel('tank', tId, 'namaTank') || tId))
+        ]);
+        toolbar.appendChild(tankSelect);
+      }
+
+      const statusSelect = el('select', {
+        class: 'filter-select',
+        onChange: (e) => { selectedStatusFilter = e.target.value; refresh(); }
+      }, [
+        el('option', { value: 'semua' }, 'Semua Status'),
+        el('option', { value: 'Draft', selected: selectedStatusFilter === 'Draft' }, 'Draft'),
+        el('option', { value: 'Diparaf Ka.Sie', selected: selectedStatusFilter === 'Diparaf Ka.Sie' }, 'Diparaf Ka.Sie'),
+        el('option', { value: 'Diparaf QC', selected: selectedStatusFilter === 'Diparaf QC' }, 'Diparaf QC'),
+        el('option', { value: 'Disahkan', selected: selectedStatusFilter === 'Disahkan' }, 'Disahkan'),
+      ]);
+      toolbar.appendChild(statusSelect);
+
+      return toolbar;
+    }
+
     function refresh() {
-      const records = api.list(category.collection);
-      countChip.textContent = `${records.length} baris`;
+      let records = api.list(category.collection);
+      const totalCount = records.length;
+
+      if (selectedTankFilter !== 'semua') {
+        records = records.filter((r) => r.tankId === selectedTankFilter);
+      }
+      if (selectedStatusFilter !== 'semua') {
+        records = records.filter((r) => (r.status || 'Draft') === selectedStatusFilter);
+      }
+
+      countChip.textContent = `${records.length} dari ${totalCount} baris`;
 
       clear(trendsWrap);
       const trends = renderCategoryTrends(category, records);
       if (trends) trendsWrap.appendChild(trends);
 
       clear(listCard);
-      listCard.appendChild(el('div', { class: 'px-5 pt-4 pb-1 flex items-center justify-between' }, [
-        el('h3', { class: 'text-base' }, 'Riwayat Data'),
+      listCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-100' }, [
+        el('h3', { class: 'text-base font-bold' }, 'Riwayat Data'),
+        renderFilterToolbar(api.list(category.collection)),
       ]));
-      listCard.appendChild(el('div', { class: 'p-4 pt-2' }, renderRecordList(category, records, {
+      listCard.appendChild(el('div', { class: 'p-4 pt-4' }, renderRecordList(category, records, {
         canEdit: mayInput,
         getApproval: approvalFor,
         onApprove: (rec, step) => verify(rec, step),

@@ -9,7 +9,7 @@ import { computeField } from '../compute.js';
 import { resolveThreshold } from '../alerts.js';
 import * as api from '../api.js';
 
-const PALETTE = ['#2563eb', '#e0902a', '#6d6bd6', '#0ea5a3', '#c65b7c', '#57a04a'];
+const PALETTE = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#f43f5e', '#06b6d4'];
 // Bentuk titik berbeda per seri → pembeda tambahan bagi pengguna buta warna
 const POINT_STYLES = ['circle', 'triangle', 'rectRot', 'rect', 'star', 'crossRot'];
 

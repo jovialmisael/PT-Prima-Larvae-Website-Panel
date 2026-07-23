@@ -47,7 +47,6 @@ export function renderDashboard() {
   const tanks = api.list('tank');
   const aktif = tanks.filter((t) => t.status === 'Aktif').length;
   const rekomendasi = api.list('temuanLab').filter((t) => (t.status || 'Baru') === 'Baru').length;
-  // Peringatan dilingkup ke divisi yang relevan bagi peran aktif (MPM lintas divisi)
   const alerts = scanAlerts({ days: 10 }).filter((a) => auth.categoryVisible(user, a.categoryId));
   const counts = alertCounts(alerts);
   const st = overallStatus(counts);
@@ -55,8 +54,8 @@ export function renderDashboard() {
   // ---- HERO ----
   root.appendChild(el('div', { class: 'hero' }, [
     el('div', { class: 'hero-main' }, [
-      el('div', { class: 'hero-eyebrow' }, greeting()),
-      el('div', { class: 'hero-title' }, 'Panel Hatchery'),
+      el('div', { class: 'hero-eyebrow' }, greeting() + ', ' + (user ? user.name : '')),
+      el('div', { class: 'hero-title' }, 'Panel Monitoring Hatchery'),
       el('div', { class: 'hero-status' }, [el('span', { class: `status-dot dot-${st.tone}` }), st.text]),
     ]),
     el('div', { class: 'hero-stats' }, [
@@ -67,18 +66,55 @@ export function renderDashboard() {
     ]),
   ]));
 
+  // ---- AKSI CEPAT / SHORTCUT BAR ----
+  const shortcutBar = el('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3' }, [
+    el('a', {
+      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
+      href: '#/h/prodAir/harianTank'
+    }, [
+      el('span', { class: 'w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg', html: ICONS.plus }),
+      el('span', {}, 'Catat Data Tank'),
+    ]),
+    el('a', {
+      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
+      href: '#/h/labWater/labFisikaKimia'
+    }, [
+      el('span', { class: 'w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg', html: ICONS.flask }),
+      el('span', {}, 'Uji Air Lab'),
+    ]),
+    el('a', {
+      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
+      href: '#/h/mpmQC/rekapBatch'
+    }, [
+      el('span', { class: 'w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-lg', html: ICONS.shield }),
+      el('span', {}, 'Verifikasi Batch'),
+    ]),
+    el('a', {
+      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
+      href: '#/h/labStandar/standarParameter'
+    }, [
+      el('span', { class: 'w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-lg', html: ICONS.gear }),
+      el('span', {}, 'Standar Parameter'),
+    ]),
+  ]);
+  root.appendChild(shortcutBar);
+
   // ---- Grid: Peringatan | Menu ----
   const grid = el('div', { class: 'grid grid-cols-1 lg:grid-cols-3 gap-6 items-start' });
 
-  // Kolom kiri: peringatan (lebih lebar)
+  // Kolom kiri: peringatan
   const left = el('div', { class: 'lg:col-span-2' });
-  const alertCard = el('div', { class: 'card overflow-hidden' });
-  alertCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 flex items-center justify-between' }, [
-    el('h2', { class: 'text-lg' }, 'Peringatan Aktif'),
+  const alertCard = el('div', { class: 'card overflow-hidden shadow-sm' });
+  alertCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 flex items-center justify-between border-b border-slate-100' }, [
+    el('div', { class: 'flex items-center gap-2' }, [
+      el('h2', { class: 'text-lg font-bold' }, 'Peringatan Parameter Aktif'),
+      el('span', { class: 'text-xs text-slate-400 font-normal' }, '(10 Hari Terakhir)'),
+    ]),
     el('span', { class: 'chip' }, `${counts.bahaya} bahaya · ${counts.waspada} waspada`),
   ]));
+
   if (!alerts.length) {
-    alertCard.appendChild(el('div', { class: 'empty-state' }, '✓ Tidak ada peringatan. Seluruh parameter dalam batas aman.'));
+    alertCard.appendChild(el('div', { class: 'empty-state py-8' }, '✓ Seluruh parameter hatchery berada dalam batas aman yang ditentukan.'));
   } else {
     const list = el('div', {});
     const shown = alerts.slice(0, 6);
@@ -87,38 +123,38 @@ export function renderDashboard() {
       list.appendChild(el('a', { class: `alert-row accent-${a.status}`, href: routeForCategory(a.categoryId) }, [
         statusBadge(a.status),
         el('div', { class: 'flex-1 min-w-0' }, [
-          el('div', { class: 'font-semibold truncate' }, `${a.field}${tankLabel ? ' · ' + tankLabel : ''}`),
-          el('div', { class: 'text-sm muted' }, `${a.categoryTitle} · ${fmtDate(a.tanggal)}`),
-          a.tindakan ? el('div', { class: 'alert-action' }, [
-            el('span', {}, '→ ' + a.tindakan),
-            a.kontakRole ? el('span', { class: 'alert-contact' }, 'Hubungi: ' + auth.roleLabelOf(a.kontakRole)) : null,
+          el('div', { class: 'font-semibold text-slate-900 truncate' }, `${a.field}${tankLabel ? ' · ' + tankLabel : ''}`),
+          el('div', { class: 'text-xs text-slate-500' }, `${a.categoryTitle} · ${fmtDate(a.tanggal)}`),
+          a.tindakan ? el('div', { class: 'alert-action text-xs mt-1' }, [
+            el('span', { class: 'text-blue-700 font-medium' }, 'Rekomendasi: ' + a.tindakan),
+            a.kontakRole ? el('span', { class: 'alert-contact text-slate-600' }, ' · Penanggungjawab: ' + auth.roleLabelOf(a.kontakRole)) : null,
           ]) : null,
         ]),
-        el('div', { class: 'num font-bold whitespace-nowrap' }, `${fmt(a.value)} ${a.unit}`.trim()),
+        el('div', { class: 'num font-bold text-sm whitespace-nowrap text-slate-800' }, `${fmt(a.value)} ${a.unit}`.trim()),
       ]));
     }
     alertCard.appendChild(list);
     if (alerts.length > shown.length) {
-      alertCard.appendChild(el('div', { class: 'px-5 py-3 text-sm muted border-t border-[#f1f5f9]' },
-        `Menampilkan 6 dari ${alerts.length} peringatan. Buka menu terkait untuk selengkapnya.`));
+      alertCard.appendChild(el('div', { class: 'px-5 py-3 text-xs text-slate-500 bg-slate-50 border-t border-slate-100' },
+        `Menampilkan 6 dari ${alerts.length} peringatan. Buka modul terkait untuk melihat riwayat lengkap.`));
     }
   }
   left.appendChild(alertCard);
   grid.appendChild(left);
 
-  // Kolom kanan: menu ringkas
+  // Kolom kanan: modul divisi ringkas
   const right = el('div', {});
-  const menuCard = el('div', { class: 'card overflow-hidden' });
-  menuCard.appendChild(el('div', { class: 'px-5 pt-4 pb-2' }, el('h2', { class: 'text-lg' }, 'Menu')));
-  const menuList = el('div', { class: 'pb-2' });
+  const menuCard = el('div', { class: 'card overflow-hidden shadow-sm' });
+  menuCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 border-b border-slate-100' }, el('h2', { class: 'text-lg font-bold' }, 'Modul Operasional')));
+  const menuList = el('div', { class: 'divide-y divide-slate-100' });
   for (const h of auth.visibleHubs(auth.currentUser()).filter((x) => x.kind !== 'dashboard')) {
-    menuList.appendChild(el('a', { class: 'menu-item', href: `#/h/${h.id}` }, [
+    menuList.appendChild(el('a', { class: 'menu-item hover:bg-blue-50/50 transition', href: `#/h/${h.id}` }, [
       el('span', { class: 'menu-ico', html: ICONS[h.icon] || '' }),
       el('div', { class: 'min-w-0 flex-1' }, [
-        el('div', { class: 'font-semibold text-sm' }, h.title),
-        el('div', { class: 'text-xs muted truncate' }, h.subtitle || ''),
+        el('div', { class: 'font-semibold text-sm text-slate-900' }, h.title),
+        el('div', { class: 'text-xs text-slate-500 truncate' }, h.subtitle || ''),
       ]),
-      el('span', { class: 'menu-arrow', html: '→' }),
+      el('span', { class: 'menu-arrow text-slate-400', html: '→' }),
     ]));
   }
   menuCard.appendChild(menuList);
@@ -127,21 +163,28 @@ export function renderDashboard() {
 
   root.appendChild(grid);
 
-  // ---- Tren ----
+  // ---- Tren Kualitas Air & Mutu Larva ----
+  const trendsWrap = el('div', { class: 'grid grid-cols-1 lg:grid-cols-2 gap-6' });
+
   const trends = renderCategoryTrends(getCategory('prodLarvae'), api.list('prodLarvae'));
   if (trends) {
-    const sec = el('div', {});
-    sec.appendChild(sectionTitle('Tren Kualitas Air Tank (Produksi)'));
-    sec.appendChild(trends);
-    root.appendChild(sec);
+    const sec = el('div', { class: 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3' }, [
+      sectionTitle('Tren Kualitas Air Tank (Produksi)'),
+      trends
+    ]);
+    trendsWrap.appendChild(sec);
   }
+
   const labTrends = renderCategoryTrends(getCategory('labCekLarva'), api.list('labCekLarva'));
   if (labTrends) {
-    const sec = el('div', {});
-    sec.appendChild(sectionTitle('Mutu Larva (Lab)'));
-    sec.appendChild(labTrends);
-    root.appendChild(sec);
+    const sec = el('div', { class: 'bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3' }, [
+      sectionTitle('Mutu Larva (Pengujian Lab)'),
+      labTrends
+    ]);
+    trendsWrap.appendChild(sec);
   }
+
+  root.appendChild(trendsWrap);
 
   return root;
 }

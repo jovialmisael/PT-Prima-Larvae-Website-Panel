@@ -10,13 +10,27 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js (CDN) untuk grafik tren -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <!-- Font aksesibilitas: Lexend (judul, dioptimalkan keterbacaan) + Source Sans 3 (teks) -->
+  <!-- Font: Fira Sans (teks/judul) + Fira Code (angka tabular, nuansa data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Terapkan tema sedini mungkin (hindari flash) -->
+  <script>
+    (function () {
+      try {
+        var q = new URLSearchParams(location.search).get('theme');
+        var t = q || localStorage.getItem('pl_theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (q) localStorage.setItem('pl_theme', q);
+        document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    })();
+  </script>
 
   <script>
     tailwind.config = {
+      darkMode: ['selector', '[data-theme="dark"]'],
       theme: {
         extend: {
           colors: {
@@ -25,13 +39,25 @@
               400: '#609afa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
               800: '#1e40af', 900: '#1e3a8a',
             },
-            paper: '#f6f9fb',
-            ink: '#1e293b',
+            /* Alias semantik → CSS var (otomatis ikut tema light/dark) */
+            app: 'var(--bg)',
+            surface: 'var(--surface)',
+            'surface-2': 'var(--surface-2)',
+            fg: 'var(--text)',
+            'fg-2': 'var(--text-2)',
+            muted: 'var(--muted)',
+            faint: 'var(--faint)',
+            line: 'var(--line)',
+            primary: 'var(--primary)',
+            'primary-600': 'var(--primary-600)',
+            accent: 'var(--accent)',
+            ok: 'var(--ok)', warn: 'var(--warn)', danger: 'var(--danger)',
           },
           fontFamily: {
-            sans: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
-            display: ['Lexend', 'system-ui', 'sans-serif'],
-            serif: ['Lexend', 'system-ui', 'sans-serif'],
+            sans: ['"Fira Sans"', 'system-ui', 'sans-serif'],
+            display: ['"Fira Sans"', 'system-ui', 'sans-serif'],
+            serif: ['"Fira Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"Fira Code"', 'ui-monospace', 'monospace'],
           },
           borderRadius: { xl: '1rem', '2xl': '1.25rem' },
         },
@@ -41,7 +67,7 @@
 
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body class="text-ink font-sans antialiased">
+<body class="text-fg bg-app font-sans antialiased">
   <div id="app" class="min-h-screen"></div>
 
   <!-- Titik masuk aplikasi (ES modules) -->

@@ -16,12 +16,31 @@ api.ensureSeeded();
 
 const appEl = document.getElementById('app');
 
+/* ---------- Tema (light/dark) ---------- */
+function currentTheme() { return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'; }
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('pl_theme', t); } catch { /* abaikan */ }
+  window.dispatchEvent(new CustomEvent('pl:themechange', { detail: { theme: t } }));
+}
+function makeThemeToggle() {
+  const btn = el('button', { class: 'theme-toggle', 'aria-label': 'Ganti tema terang/gelap', title: 'Ganti tema terang/gelap' });
+  const paint = () => { btn.innerHTML = currentTheme() === 'dark' ? ICONS.sun : ICONS.moon; };
+  paint();
+  btn.addEventListener('click', () => {
+    setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    paint();
+    if (auth.isLoggedIn()) route();   // render ulang agar grafik ikut tema
+  });
+  return btn;
+}
+
 /* ---------- Layout ---------- */
 let contentEl, sidebarEl, overlayEl, navEl, switcherEl;
 let openHubId; // modul yang terbuka di accordion
 
 function buildLayout() {
-  const brand = el('div', { class: 'px-5 py-5 border-b border-[#e2e8f0] flex items-center gap-3' }, [
+  const brand = el('div', { class: 'px-5 py-5 border-b border-line flex items-center gap-3' }, [
     el('div', { class: 'brand-mark', html: ICONS.droplet }),
     el('div', {}, [
       el('div', { class: 'text-[0.68rem] tracking-[0.2em] text-brand-600 font-bold' }, 'PRIMA LARVAE'),
@@ -36,10 +55,10 @@ function buildLayout() {
     class: 'btn btn-ghost btn-sm w-full',
     onClick: () => { if (confirm('Reset semua data ke contoh awal? Perubahan akan hilang.')) { api.resetData(); route(); } },
   }, 'Reset data contoh');
-  const sideFooter = el('div', { class: 'px-3 py-3 border-t border-[#e2e8f0]' }, resetBtn);
+  const sideFooter = el('div', { class: 'px-3 py-3 border-t border-line' }, resetBtn);
 
   sidebarEl = el('aside', {
-    class: 'fixed lg:translate-x-0 -translate-x-full transition-transform z-40 top-0 left-0 h-screen w-72 bg-white border-r border-[#e2e8f0] flex flex-col shadow-sm',
+    class: 'fixed lg:translate-x-0 -translate-x-full transition-transform z-40 top-0 left-0 h-screen w-72 app-sidebar flex flex-col shadow-sm',
   }, [brand, switcherEl, navEl, sideFooter]);
 
   overlayEl = el('div', { class: 'sidebar-overlay hidden', onClick: closeSidebar });
@@ -48,18 +67,21 @@ function buildLayout() {
   const roleText = u ? auth.roleLabel(u) : '';
 
   const mobileTopbar = el('div', {
-    class: 'lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#e2e8f0] px-4 py-3 flex items-center justify-between gap-3',
+    class: 'lg:hidden sticky top-0 z-30 bg-surface border-b border-line px-4 py-3 flex items-center justify-between gap-3',
   }, [
     el('div', { class: 'flex items-center gap-3' }, [
       el('button', { class: 'btn btn-ghost btn-sm', onClick: openSidebar, html: '☰', 'aria-label': 'Buka menu' }),
       el('div', { class: 'brand-mark', style: 'width:2rem;height:2rem;border-radius:0.6rem', html: ICONS.droplet }),
       el('div', { class: 'font-display font-semibold text-lg' }, 'Panel Hatchery'),
     ]),
-    el('div', { class: 'text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200' }, roleText),
+    el('div', { class: 'flex items-center gap-2' }, [
+      el('span', { class: 'chip' }, roleText),
+      makeThemeToggle(),
+    ]),
   ]);
 
   const desktopTopbar = el('div', {
-    class: 'hidden lg:flex sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-[#e2e8f0] px-8 py-3.5 items-center justify-between gap-4',
+    class: 'hidden lg:flex sticky top-0 z-30 bg-surface border-b border-line px-8 py-3.5 items-center justify-between gap-4',
   }, [
     el('div', { class: 'search-box-wrap' }, [
       el('span', { class: 'search-icon-inside', html: ICONS.search }),
@@ -86,15 +108,16 @@ function buildLayout() {
       }),
     ]),
     el('div', { class: 'flex items-center gap-3' }, [
-      el('div', { class: 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold' }, [
+      el('div', { class: 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 text-fg-2 text-xs font-semibold' }, [
         el('span', { class: 'w-2 h-2 rounded-full bg-emerald-500' }),
         roleText || 'Sistem Aktif',
       ]),
+      makeThemeToggle(),
     ]),
   ]);
 
   contentEl = el('main', { id: 'content', class: 'p-5 lg:p-8 max-w-[1400px]' });
-  const contentWrap = el('div', { class: 'lg:ml-72 min-h-screen flex flex-col bg-[#f8fafc]' }, [mobileTopbar, desktopTopbar, contentEl]);
+  const contentWrap = el('div', { class: 'lg:ml-72 min-h-screen flex flex-col bg-app' }, [mobileTopbar, desktopTopbar, contentEl]);
 
   clear(appEl);
   appEl.appendChild(overlayEl);

@@ -88,7 +88,7 @@ export function createCategoryView(categoryId) {
       const tanksInCategory = [...new Set(records.map((r) => r.tankId).filter(Boolean))];
       const toolbar = el('div', { class: 'filter-toolbar' });
 
-      toolbar.appendChild(el('span', { class: 'text-xs font-bold text-slate-500 uppercase tracking-wider' }, 'Filter Data:'));
+      toolbar.appendChild(el('span', { class: 'text-xs font-bold text-muted uppercase tracking-wider' }, 'Filter Data:'));
 
       if (tanksInCategory.length) {
         const tankSelect = el('select', {
@@ -134,7 +134,7 @@ export function createCategoryView(categoryId) {
       if (trends) trendsWrap.appendChild(trends);
 
       clear(listCard);
-      listCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-100' }, [
+      listCard.appendChild(el('div', { class: 'px-5 pt-4 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-line' }, [
         el('h3', { class: 'text-base font-bold' }, 'Riwayat Data'),
         renderFilterToolbar(api.list(category.collection)),
       ]));

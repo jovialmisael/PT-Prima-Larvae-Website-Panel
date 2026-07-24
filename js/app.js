@@ -66,16 +66,22 @@ function buildLayout() {
       el('input', {
         type: 'text',
         class: 'search-input-field',
-        placeholder: 'Cari Tank, Parameter, atau Menu...',
-        onInput: (e) => {
+        placeholder: 'Cari Tank, Parameter, atau Menu… (Enter)',
+        onKeyDown: (e) => {
+          if (e.key !== 'Enter') return;
           const val = e.target.value.toLowerCase().trim();
           if (!val) return;
-          // Melakukan pengalihan cepat jika cocok dengan kategori/tank
-          if (val.includes('tank') || val.includes('t-')) {
-            location.hash = '#/h/prodAir/harianTank';
-          } else if (val.includes('lab') || val.includes('sampel')) {
-            location.hash = '#/h/labWater/labFisikaKimia';
+          // Pengalihan cepat ke halaman terkait (rute nyata)
+          if (val.includes('tank') || val.includes('lembar') || val.includes('t-')) {
+            location.hash = '#/h/analisis/lembar';
+          } else if (val.includes('lab') || val.includes('sampel') || val.includes('pcr') || val.includes('mikro')) {
+            location.hash = '#/h/lab/form-pcr';
+          } else if (val.includes('standar') || val.includes('batas')) {
+            location.hash = '#/h/lab/standar';
+          } else if (val.includes('sah') || val.includes('verif')) {
+            location.hash = '#/h/mpm/verifikasi';
           }
+          e.target.value = '';
         }
       }),
     ]),

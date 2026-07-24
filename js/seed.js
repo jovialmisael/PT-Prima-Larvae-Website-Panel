@@ -100,7 +100,52 @@ const temuanLab = [
   { id: 'tm-2', tanggal: dateStr(3), area: 'Algae', parameter: 'Grade algae', temuan: 'Grade algae turun ke B saat density < 1 juta sel/mL.', rekomendasi: 'Pertahankan density > 1,2 juta sel/mL sebelum pakan diberikan.', status: 'Diterapkan', dibuatOleh: person('Kabag Lab & Algae', 'kabagLab', 3), diterapkanOleh: person('Petugas Produksi', 'petugasProd', 2), createdAt: stamp(3), updatedAt: stamp(2) },
 ];
 
+// ---------- Produksi: Post-Larvae & panen (tank-1 = siklus berhasil, tahap PL) ----------
+const prodPostLarvae = [
+  { id: 'ppl-1', tanggal: dateStr(2), tankId: 'tank-1', stadia: 'PL3', count: 8200000, estPanen: 7500000, sr: 82, def: 4, sizeManual: 7.2, cv: 9, ekorPerGram: 450, stressSurvival: 94, ...doneProd(2), createdAt: stamp(2), updatedAt: stamp(2) },
+  { id: 'ppl-2', tanggal: dateStr(1), tankId: 'tank-1', stadia: 'PL4', count: 8000000, estPanen: 7400000, sr: 80, def: 5, sizeManual: 8.1, cv: 11, ekorPerGram: 420, stressSurvival: 92, ...doneProd(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'ppl-3', tanggal: dateStr(0), tankId: 'tank-1', stadia: 'PL5', count: 7800000, estPanen: 7300000, sr: 79, def: 6, sizeManual: 8.8, cv: 12, ekorPerGram: 400, stressSurvival: 90, totalPanen: 7300000, srPanen: 78, plPerKantong: 2000, jumlahKantong: 3650, doaSurvival: 96, tambakTujuan: 'Tambak Sukamaju', status: 'Draft', dibuatOleh: sPetugasProd(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Lab: mikro Post-Larvae (Form 16, tank-1) ----------
+const labMikroPl = [
+  { id: 'lmp-1', tanggal: dateStr(1), tankId: 'tank-1', stadia: 'PL4', vibrio: 'Tidak ada', tvc: 900, tcbsLuminescent: 0, ...doneLab(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'lmp-2', tanggal: dateStr(0), tankId: 'tank-1', stadia: 'PL5', vibrio: 'Ada', tvc: 3400, tcbsLuminescent: 0, status: 'Draft', dibuatOleh: sPetugasLab(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Produksi: kultur algae ----------
+const prodAlgae = [
+  { id: 'pa-1', tanggal: dateStr(1), jenis: 'Chaetoceros', density: 1600000, kondisi: 'Baik', volume: 2000, ...doneProd(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'pa-2', tanggal: dateStr(0), jenis: 'Thalassiosira', density: 900000, kondisi: 'Sedang', volume: 1500, status: 'Draft', dibuatOleh: sPetugasProd(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Produksi: artemia ----------
+const prodArtemia = [
+  { id: 'par-1', tanggal: dateStr(1), nomorBatch: 'ART-06', hatchingRate: 88, kepadatan: 250, dekapsulasi: 'Ya', ...doneProd(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'par-2', tanggal: dateStr(0), nomorBatch: 'ART-07', hatchingRate: 72, kepadatan: 200, dekapsulasi: 'Tidak', catatan: 'Hatching rate rendah, cek kista.', status: 'Draft', dibuatOleh: sPetugasProd(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Produksi: log tindakan (tank-scoped) ----------
+const prodTindakan = [
+  { id: 'pt-1', tanggal: dateStr(1), jam: '08:00', tankId: 'tank-3', jenis: 'Pergantian air', dosis: '40%', alasan: 'Nitrit & NH3 tinggi, kualitas air menurun.', ...doneProd(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'pt-2', tanggal: dateStr(0), jam: '15:00', tankId: 'tank-2', jenis: 'Pemberian probiotik', dosis: '5 ppm', alasan: 'Pencegahan Vibrio pasca hasil mikro.', status: 'Draft', dibuatOleh: sPetugasProd(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Produksi: kontrol suhu spawner (Form 06.A) ----------
+const spawnerKontrol = [
+  { id: 'sk-1', tanggal: dateStr(1), bak: 'Spawner A', waktu: '20:00', suhu: 28.5, ...doneProd(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'sk-2', tanggal: dateStr(0), bak: 'Spawner B', waktu: '22:00', suhu: 31.5, catatan: 'Suhu palam agak tinggi.', status: 'Draft', dibuatOleh: sPetugasProd(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
+// ---------- Lab: sampel nauplii abnormal (Form 06.A) ----------
+const spawnerNauplii = [
+  { id: 'sn-1', tanggal: dateStr(1), spawner: 'SP-12', waktu: 'Pagi', bagus: 480, abnormalCount: 20, telur: 15, abnormal: 4, ...doneLab(1), createdAt: stamp(1), updatedAt: stamp(1) },
+  { id: 'sn-2', tanggal: dateStr(0), spawner: 'SP-15', waktu: 'Sore', bagus: 430, abnormalCount: 70, telur: 25, abnormal: 14, status: 'Draft', dibuatOleh: sPetugasLab(0), createdAt: stamp(0), updatedAt: stamp(0) },
+];
+
 export const SEED = {
   tank, prodLarvae, prodPersiapanWater, prodInduk,
   labMikro, labCekLarva, labAlgae, labPcrKimia, temuanLab,
+  prodPostLarvae, labMikroPl, prodAlgae, prodArtemia, prodTindakan,
+  spawnerKontrol, spawnerNauplii,
 };

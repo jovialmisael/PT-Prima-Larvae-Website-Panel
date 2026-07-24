@@ -38,6 +38,37 @@ export const CATEGORIES = [
     ],
   },
   {
+    id: 'labMikroPl', code: 'LAB', division: 'lab', collection: 'labMikroPl', traceKey: true,
+    title: 'Mikrobiologi Post-Larvae', frekuensi: 'Harian dari PL3 / tiap panen',
+    desc: 'Uji mikrobiologi air & tubuh PL menjelang panen (bagian Lab pada Form 16).',
+    chart: ['tvc', 'tcbsLuminescent'],
+    fields: [
+      { key: 'tanggal', label: 'Tanggal', type: 'date', required: true },
+      { key: 'tankId', label: 'Tank', type: 'ref', refCollection: 'tank', refLabelKey: 'namaTank' },
+      { key: 'stadia', label: 'Stadia PL', type: 'select', options: STAGES },
+      { key: 'vibrio', label: 'Hasil Mikro (Vibrio)', type: 'select', options: ADA, threshold: { badValues: ['Ada'] } },
+      { key: 'tvc', label: 'TVC', type: 'number', unit: 'CFU/mL', threshold: { safeMax: 2300, dangerMax: 10000 }, help: 'Batas ≤ 2,3×10³' },
+      { key: 'tcbsLuminescent', label: 'TCBS Luminescent', type: 'number', unit: 'CFU/mL', threshold: { safeMax: 0, dangerMax: 0 } },
+      { key: 'catatan', label: 'Catatan', type: 'textarea' },
+    ],
+  },
+  {
+    id: 'spawnerNauplii', code: 'LAB', division: 'lab', collection: 'spawnerNauplii',
+    title: 'Sampel Nauplii Abnormal', frekuensi: 'Pagi & sore tiap pemijahan',
+    desc: 'Sampling mutu nauplii dari spawner: proporsi abnormal (bagian Lab pada Form 06.A).',
+    chart: ['abnormal'],
+    fields: [
+      { key: 'tanggal', label: 'Tanggal', type: 'date', required: true },
+      { key: 'spawner', label: 'No. Spawner', type: 'text' },
+      { key: 'waktu', label: 'Waktu', type: 'select', options: ['Pagi', 'Sore'] },
+      { key: 'bagus', label: 'Nauplii Bagus', type: 'number', unit: 'ekor', group: 'Sampel' },
+      { key: 'abnormalCount', label: 'Nauplii Abnormal', type: 'number', unit: 'ekor', group: 'Sampel' },
+      { key: 'telur', label: 'Telur Belum Menetas', type: 'number', unit: 'butir', group: 'Sampel' },
+      { key: 'abnormal', label: '% Abnormal', type: 'number', unit: '%', threshold: { safeMax: 5, dangerMax: 15 } },
+      { key: 'catatan', label: 'Catatan', type: 'textarea' },
+    ],
+  },
+  {
     id: 'labPcrKimia', code: 'LAB', division: 'lab', collection: 'labPcrKimia',
     title: 'PCR & Kimia', frekuensi: 'Setiap batch / berkala',
     desc: 'Deteksi penyakit (PCR) dan uji kimia. PCR positif menandakan penyakit terdeteksi.',
@@ -188,6 +219,19 @@ export const CATEGORIES = [
     ],
   },
   {
+    id: 'spawnerKontrol', code: 'PRD', division: 'produksi', collection: 'spawnerKontrol',
+    title: 'Kontrol Suhu Spawner', frekuensi: 'Tiap 1 jam (18:00–24:00)',
+    desc: 'Kontrol suhu palam bak spawner menjelang pemijahan (bagian Produksi pada Form 06.A).',
+    chart: ['suhu'],
+    fields: [
+      { key: 'tanggal', label: 'Tanggal', type: 'date', required: true },
+      { key: 'bak', label: 'Bak Spawner', type: 'text' },
+      { key: 'waktu', label: 'Waktu', type: 'time' },
+      { key: 'suhu', label: 'Suhu Palam', type: 'number', unit: '°C', threshold: { safeMin: 27, safeMax: 30, dangerMin: 25, dangerMax: 32 } },
+      { key: 'catatan', label: 'Catatan', type: 'textarea' },
+    ],
+  },
+  {
     id: 'prodLarvae', code: 'PRD', division: 'produksi', collection: 'prodLarvae', traceKey: true,
     title: 'Larvae — Air Harian', frekuensi: '2× sehari (pagi & sore), per tank',
     desc: 'Kualitas air harian tank larva. NH3 dihitung otomatis dari TAN, pH, suhu, salinitas.',
@@ -277,7 +321,6 @@ export const CATEGORIES = [
 
 // ---- Helper kategori ----
 export function getCategory(id) { return CATEGORIES.find((c) => c.id === id) || null; }
-export function thresholdFields(category) { return category.fields.filter((f) => f.threshold); }
 
 /* ============================ HUBS (per divisi) ============================ */
 export const HUBS = [
@@ -286,6 +329,7 @@ export const HUBS = [
     id: 'lab', division: 'lab', title: 'Divisi Lab', subtitle: 'Mutu · analisis · standar', icon: 'flask',
     tabs: [
       { kind: 'view', ref: 'standar', label: 'Standar Parameter' },
+      { kind: 'form', ref: 'form-06a' },
       { kind: 'form', ref: 'form-13' },
       { kind: 'form', ref: 'form-16' },
       { kind: 'form', ref: 'form-algae' },
@@ -297,6 +341,7 @@ export const HUBS = [
     id: 'produksi', division: 'produksi', title: 'Divisi Produksi', subtitle: 'Pencatatan SOP operasional', icon: 'gears',
     tabs: [
       { kind: 'form', ref: 'form-06' },
+      { kind: 'form', ref: 'form-06a' },
       { kind: 'form', ref: 'form-water' },
       { kind: 'form', ref: 'form-13' },
       { kind: 'form', ref: 'form-16' },
@@ -336,13 +381,14 @@ export function getHub(id) { return HUBS.find((h) => h.id === id) || null; }
    Form campuran (13/16/algae) muncul di hub Produksi & Lab; tiap divisi hanya
    boleh menginput section miliknya (canInput per divisi). Lihat docs/model-peran-alur.md. */
 export const FORMS = [
-  { id: 'form-06',    no: '06',  title: 'Kualitas Air Maturasi & Spawner', sections: ['prodInduk'] },
-  { id: 'form-water', no: '—',   title: 'Persiapan Water',                  sections: ['prodPersiapanWater'] },
-  { id: 'form-13',    no: '13',  title: 'Observasi Bak Larvae',            sections: ['prodLarvae', 'labCekLarva', 'labMikro'] },
-  { id: 'form-16',    no: '16',  title: 'Observasi Bak Post Larvae',       sections: ['prodPostLarvae'] },
-  { id: 'form-algae', no: '—',   title: 'Algae & Artemia',                 sections: ['prodAlgae', 'prodArtemia', 'labAlgae'] },
-  { id: 'form-23',    no: '23',  title: 'Pemakaian Probiotik & Tindakan',  sections: ['prodTindakan'] },
-  { id: 'form-pcr',   no: '—',   title: 'PCR & Kimia',                     sections: ['labPcrKimia'] },
+  { id: 'form-06',    no: '06',   title: 'Kualitas Air Maturasi',          sections: ['prodInduk'] },
+  { id: 'form-06a',   no: '06.A', title: 'Kualitas Spawner',               sections: ['spawnerKontrol', 'spawnerNauplii'] },
+  { id: 'form-water', no: '—',    title: 'Persiapan Water',                 sections: ['prodPersiapanWater'] },
+  { id: 'form-13',    no: '13',   title: 'Observasi Bak Larvae',           sections: ['prodLarvae', 'prodAlgae', 'labCekLarva', 'labMikro'] },
+  { id: 'form-16',    no: '16',   title: 'Observasi Bak Post Larvae',      sections: ['prodPostLarvae', 'labMikroPl'] },
+  { id: 'form-algae', no: '—',    title: 'Artemia & Kualitas Algae',       sections: ['prodArtemia', 'labAlgae'] },
+  { id: 'form-23',    no: '23',   title: 'Pemakaian Probiotik & Tindakan', sections: ['prodTindakan'] },
+  { id: 'form-pcr',   no: '—',    title: 'PCR & Kimia',                    sections: ['labPcrKimia'] },
 ];
 export function getForm(id) { return FORMS.find((f) => f.id === id) || null; }
 export function formForCategory(catId) { return FORMS.find((f) => f.sections.includes(catId)) || null; }

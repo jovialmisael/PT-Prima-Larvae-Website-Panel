@@ -38,15 +38,19 @@ QC & MPM mengesahkan.
 Prinsip: **struktur ikut form asli, input dipisah per role** — tiap role mengisi bagiannya,
 lalu digabung menjadi satu form (join pada `formId + tankId + tanggal [+ stadia]`).
 
-| Form | No | Section Lab | Section Produksi | Tanda tangan |
-|---|---|---|---|---|
-| Observasi Bak Larvae | 13 | MICRO/Mikroskopis (`labMikro`, `labCekLarva`) | air harian & algae (`prodLarvae`, `prodAlgae`) | Ka.Sie → QC → MPM |
-| Observasi Bak Post Larvae | 16 | micro PL | PL & panen (`prodPostLarvae`) | Ka.Sie → QC → MPM |
-| Kualitas Air Maturasi | 06 | — | air maturasi (`prodInduk`) | Ka.Sie → MPM |
-| Kualitas Spawner | 06.A | nauplii abnormal (sampel) | suhu/kontrol | Ka.Sie → QC → MPM |
-| Pemakaian Probiotik | 23 | — | probiotik (`prodTindakan`) | Ka.Sie → MPM |
+| Form | No | Section Lab | Section Produksi |
+|---|---|---|---|
+| Observasi Bak Larvae | 13 | `labCekLarva`, `labMikro` (MICRO/Mikroskopis) | `prodLarvae` (air harian), `prodAlgae` |
+| Observasi Bak Post Larvae | 16 | `labMikroPl` (mikro PL) | `prodPostLarvae` (PL & panen) |
+| Kualitas Air Maturasi | 06 | — | `prodInduk` |
+| Kualitas Spawner | 06.A | `spawnerNauplii` (nauplii abnormal) | `spawnerKontrol` (suhu palam) |
+| Artemia & Kualitas Algae | — | `labAlgae` | `prodArtemia` |
+| Persiapan Water | — | — | `prodPersiapanWater` |
+| Pemakaian Probiotik & Tindakan | 23 | — | `prodTindakan` |
+| PCR & Kimia | — | `labPcrKimia` | — |
 
-*(Katalog lengkap 13 kategori dirampungkan di Fase 2.)*
+Registry di `js/schema.js` (`FORMS`). Pengesahan **diseragamkan 4 langkah** untuk semua form
+(Draft → Ka.Sie → QC → MPM) — meski beberapa form fisik melewati QC — demi kesederhanaan prototype.
 
 ## 4. Rantai pengesahan (berjenjang)
 

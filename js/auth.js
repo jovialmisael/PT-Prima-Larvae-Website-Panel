@@ -65,7 +65,6 @@ export function logout() { localStorage.removeItem(SESSION_KEY); }
 export function roleLabel(user) { return ROLES[user.role]?.label || user.role; }
 export function levelOf(user) { return ROLES[user.role]?.level || null; }
 export function divisionOf(user) { return ROLES[user.role]?.division || null; }
-export function divisionLabel(user) { const d = divisionOf(user); return d ? DIVISIONS[d] : (user.role === 'admin' ? 'Sistem' : ''); }
 export function userStamp(user) { return { name: user.name, role: user.role, at: new Date().toISOString() }; }
 
 export function divisionOfCategory(catId) { const c = getCategory(catId); return c ? c.division : null; }
@@ -79,13 +78,6 @@ export function categoryVisible(user, catId) {
   return divisionOf(user) === div;
 }
 
-// Kabag divisi = kontak eskalasi bila batas terlampaui
-export function kontakRoleFor(division) {
-  if (division === 'lab') return 'kabagLab';
-  if (division === 'produksi') return 'kabagProd';
-  if (division === 'mpm') return 'kabagMpm';
-  return null;
-}
 export function roleLabelOf(roleId) { return ROLES[roleId]?.label || roleId; }
 
 /* --- Visibilitas hub/tab --- */
@@ -116,8 +108,6 @@ export function canInput(user, catId) {
 
 /* --- Rantai pengesahan berjenjang ---------------------------------------------
    Draft → Diparaf Ka.Sie → Diparaf QC → Disahkan (MPM). */
-export const APPROVAL_FLOW = ['Draft', 'Diparaf Ka.Sie', 'Diparaf QC', 'Disahkan'];
-
 export function canParafKasie(user, catId) {
   if (levelOf(user) !== 'kasie') return false;
   const div = divisionOfCategory(catId);
@@ -134,8 +124,6 @@ export function nextApproval(user, catId, status) {
   if (s === 'Diparaf QC' && canSahkanMpm(user)) return { step: 'sahkanMpm', label: 'Sahkan' };
   return null;
 }
-export function isFinalStatus(status) { return (status || 'Draft') === 'Disahkan'; }
-
 export function canManageStandar(user) { return user.role === 'kabagLab'; }        // Standar dimiliki Lab
 // Petugas Produksi menandai rekomendasi Lab sebagai "Diterapkan"
 export function canApplyTemuan(user) { return user.role === 'petugasProd'; }

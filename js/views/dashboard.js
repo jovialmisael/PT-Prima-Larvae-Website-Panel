@@ -4,7 +4,7 @@
    =========================================================================== */
 
 import { el, fmt, fmtDate } from '../dom.js';
-import { getCategory, routeForCategory } from '../schema.js';
+import { getCategory, routeForCategory, getHub } from '../schema.js';
 import * as auth from '../auth.js';
 import { scanAlerts, alertCounts } from '../alerts.js';
 import { statusBadge } from '../components/alertBadge.js';
@@ -66,38 +66,24 @@ export function renderDashboard() {
     ]),
   ]));
 
-  // ---- AKSI CEPAT / SHORTCUT BAR ----
-  const shortcutBar = el('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3' }, [
-    el('a', {
-      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
-      href: '#/h/prodAir/harianTank'
-    }, [
-      el('span', { class: 'w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg', html: ICONS.plus }),
-      el('span', {}, 'Catat Data Tank'),
-    ]),
-    el('a', {
-      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
-      href: '#/h/labWater/labFisikaKimia'
-    }, [
-      el('span', { class: 'w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg', html: ICONS.flask }),
-      el('span', {}, 'Uji Air Lab'),
-    ]),
-    el('a', {
-      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
-      href: '#/h/mpmQC/rekapBatch'
-    }, [
-      el('span', { class: 'w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-lg', html: ICONS.shield }),
-      el('span', {}, 'Verifikasi Batch'),
-    ]),
-    el('a', {
-      class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
-      href: '#/h/labStandar/standarParameter'
-    }, [
-      el('span', { class: 'w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-lg', html: ICONS.gear }),
-      el('span', {}, 'Standar Parameter'),
-    ]),
-  ]);
-  root.appendChild(shortcutBar);
+  // ---- AKSI CEPAT / SHORTCUT BAR (rute nyata, sadar-peran) ----
+  const shortcuts = [
+    { label: 'Catat Data Tank',  href: '#/h/produksi/form-13', hubId: 'produksi', icon: 'plus',   bg: 'bg-blue-50',    fg: 'text-blue-600' },
+    { label: 'Uji Air Lab',      href: '#/h/lab/form-pcr',     hubId: 'lab',      icon: 'flask',  bg: 'bg-emerald-50', fg: 'text-emerald-600' },
+    { label: 'Verifikasi Batch', href: '#/h/mpm/verifikasi',   hubId: 'mpm',      icon: 'shield', bg: 'bg-purple-50',  fg: 'text-purple-600' },
+    { label: 'Standar Parameter',href: '#/h/lab/standar',      hubId: 'lab',      icon: 'gear',   bg: 'bg-amber-50',   fg: 'text-amber-600' },
+  ].filter((s) => { const h = getHub(s.hubId); return h && auth.hubAllowed(user, h); });
+
+  if (shortcuts.length) {
+    root.appendChild(el('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3' },
+      shortcuts.map((s) => el('a', {
+        class: 'p-3.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center gap-3 text-slate-800 font-semibold text-sm',
+        href: s.href,
+      }, [
+        el('span', { class: `w-8 h-8 rounded-lg ${s.bg} ${s.fg} flex items-center justify-center font-bold text-lg`, html: ICONS[s.icon] }),
+        el('span', {}, s.label),
+      ]))));
+  }
 
   // ---- Grid: Peringatan | Menu ----
   const grid = el('div', { class: 'grid grid-cols-1 lg:grid-cols-3 gap-6 items-start' });

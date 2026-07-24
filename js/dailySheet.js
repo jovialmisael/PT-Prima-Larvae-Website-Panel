@@ -15,7 +15,9 @@ const SOURCE_COLLECTIONS = ['prodLarvae', 'labCekLarva', 'labMikro', 'prodPostLa
 // Kolom parameter kunci: (koleksi, key field). Definisi field diambil dari schema.
 const SHEET_COLUMNS = [
   ['prodLarvae', 'suhuSore'],
+  ['prodLarvae', 'suhuDelta'],
   ['prodLarvae', 'phSore'],
+  ['prodLarvae', 'phDelta'],
   ['prodLarvae', 'do'],
   ['prodLarvae', 'nh3'],
   ['prodLarvae', 'nitrit'],
@@ -25,6 +27,8 @@ const SHEET_COLUMNS = [
   ['labCekLarva', 'mortalitas'],
   ['labMikro', 'tvc'],
   ['labMikro', 'tcbsLuminescent'],
+  ['prodPostLarvae', 'cv'],
+  ['prodPostLarvae', 'sizeManual'],
 ];
 
 export function sheetColumns() {
@@ -36,12 +40,14 @@ export function sheetColumns() {
 }
 
 // Bangun baris 1-tank-1-hari dari gabungan koleksi tank-scoped.
-export function buildDailyRows({ tankId = null } = {}) {
+export function buildDailyRows({ tankId = null, from = null, to = null } = {}) {
   const groups = new Map(); // `${tankId}__${tanggal}` → { tankId, tanggal, recs }
   for (const collection of SOURCE_COLLECTIONS) {
     for (const rec of api.list(collection)) {         // terurut terbaru dulu
       if (!rec.tankId || !rec.tanggal) continue;
       if (tankId && rec.tankId !== tankId) continue;
+      if (from && rec.tanggal < from) continue;       // filter rentang (YYYY-MM-DD → banding leksikografis)
+      if (to && rec.tanggal > to) continue;
       const k = `${rec.tankId}__${rec.tanggal}`;
       if (!groups.has(k)) groups.set(k, { tankId: rec.tankId, tanggal: rec.tanggal, recs: {} });
       const g = groups.get(k);

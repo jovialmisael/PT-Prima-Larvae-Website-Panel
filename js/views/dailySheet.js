@@ -32,15 +32,20 @@ export function renderDailySheet() {
     el('option', { value: '' }, 'Semua tank'),
     ...tanks.map((t) => el('option', { value: t.id }, t.namaTank)),
   ]);
+  const fromInput = el('input', { class: 'field-input', type: 'date', style: 'max-width:160px', 'aria-label': 'Dari tanggal' });
+  const toInput = el('input', { class: 'field-input', type: 'date', style: 'max-width:160px', 'aria-label': 'Sampai tanggal' });
   const exportBtn = el('button', { class: 'btn btn-ghost btn-sm' }, '⬇ Ekspor CSV');
   const controls = el('div', { class: 'flex items-center gap-2 flex-wrap' }, [
-    el('span', { class: 'text-sm muted' }, 'Tank:'), tankSelect, exportBtn,
+    el('span', { class: 'text-sm muted' }, 'Tank:'), tankSelect,
+    el('span', { class: 'text-sm muted' }, 'Dari:'), fromInput,
+    el('span', { class: 'text-sm muted' }, 'Sampai:'), toInput,
+    exportBtn,
   ]);
 
   const tableWrap = el('div', { class: 'card p-0 overflow-x-auto' });
 
   function currentRows() {
-    return buildDailyRows({ tankId: tankSelect.value || null });
+    return buildDailyRows({ tankId: tankSelect.value || null, from: fromInput.value || null, to: toInput.value || null });
   }
 
   function renderTable() {
@@ -77,6 +82,8 @@ export function renderDailySheet() {
   }
 
   tankSelect.addEventListener('change', renderTable);
+  fromInput.addEventListener('change', renderTable);
+  toInput.addEventListener('change', renderTable);
   exportBtn.addEventListener('click', () => {
     const rows = currentRows();
     const suffix = tankSelect.value ? api.refLabel('tank', tankSelect.value, 'namaTank').replace(/\s+/g, '-') : 'semua';
@@ -113,10 +120,14 @@ function renderComparison(tanks) {
   }
   wrap.appendChild(legend);
 
-  // Overlay tren NH3/nitrit/DO untuk tank berlabel (pakai ulang chart kategori)
+  // Overlay tren untuk tank berlabel (pakai ulang chart kategori)
   const ids = new Set(labeled.map((t) => t.id));
-  const recs = api.list('prodLarvae').filter((r) => ids.has(r.tankId));
-  const trends = renderCategoryTrends(getCategory('prodLarvae'), recs);
-  wrap.appendChild(trends || el('div', { class: 'empty-state' }, 'Data air harian belum cukup untuk grafik banding.'));
+  const airRecs = api.list('prodLarvae').filter((r) => ids.has(r.tankId));
+  const airTrends = renderCategoryTrends(getCategory('prodLarvae'), airRecs);      // NH3/nitrit/DO
+  wrap.appendChild(airTrends || el('div', { class: 'empty-state' }, 'Data air harian belum cukup untuk grafik banding.'));
+
+  const srRecs = api.list('labCekLarva').filter((r) => ids.has(r.tankId));
+  const srTrends = renderCategoryTrends(getCategory('labCekLarva'), srRecs);        // SR/mortalitas
+  if (srTrends) wrap.appendChild(srTrends);
   return wrap;
 }

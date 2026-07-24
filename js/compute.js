@@ -62,13 +62,6 @@ export function computeField(field, record) {
   return fn ? fn(record) : null;
 }
 
-/* --- Survival antar stadia (dipakai bila diperlukan) --- */
-export function survivalRate(awal, akhir) {
-  const a = num(awal), b = num(akhir);
-  if (Number.isNaN(a) || Number.isNaN(b) || a === 0) return null;
-  return round((b / a) * 100, 1);
-}
-
 /* --- Statistik sebaran (untuk kalibrasi batas dari data siklus) --- */
 export function stats(values) {
   const arr = values.map(num).filter((v) => !Number.isNaN(v)).sort((a, b) => a - b);
@@ -103,14 +96,4 @@ export function suggestBounds(values, field) {
   if (hasMin) { bounds.safeMin = s.p10; bounds.dangerMin = s.p05; }
   if (!hasMax && !hasMin) { bounds.safeMin = s.p10; bounds.safeMax = s.p90; bounds.dangerMin = s.p05; bounds.dangerMax = s.p95; }
   return { bounds, stats: s };
-}
-
-/* --- Koefisien variasi dari daftar sampel panjang --- */
-export function coefVariation(values) {
-  const arr = values.map(num).filter((v) => !Number.isNaN(v));
-  if (arr.length < 2) return null;
-  const mean = arr.reduce((s, v) => s + v, 0) / arr.length;
-  if (mean === 0) return null;
-  const variance = arr.reduce((s, v) => s + (v - mean) ** 2, 0) / (arr.length - 1);
-  return round((Math.sqrt(variance) / mean) * 100, 1);
 }

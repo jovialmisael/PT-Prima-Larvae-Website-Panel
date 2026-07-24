@@ -404,6 +404,21 @@ td.cell-waspada { background: var(--cell-warn); } td.cell-bahaya { background: v
 .search-input-field:focus { background: var(--surface); border-color: var(--primary); box-shadow: var(--ring); outline: none; }
 .search-icon-inside { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--faint); width: 1.1rem; height: 1.1rem; pointer-events: none; }
 
+/* =========================== BANNER VERSI BARU =========================== */
+.update-banner {
+  position: fixed; left: 50%; bottom: 1.1rem; transform: translateX(-50%);
+  z-index: 200; display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.55rem 0.65rem 0.55rem 1rem; border-radius: 999px;
+  background: var(--surface); color: var(--text); font-size: 0.9rem; font-weight: 600;
+  border: 1px solid var(--line); box-shadow: var(--shadow-lg);
+  animation: bannerUp 0.28s ease both; max-width: calc(100vw - 2rem);
+}
+@keyframes bannerUp { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.update-banner__ico { display: flex; color: var(--primary); flex-shrink: 0; }
+.update-banner__close { flex-shrink: 0; width: 1.9rem; height: 1.9rem; border-radius: 999px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+.update-banner__close:hover { background: var(--surface-2); color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .update-banner { animation: none; } }
+
 /* =========================== FILTER TOOLBAR =========================== */
 .filter-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding: 0.85rem 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 1rem; box-shadow: var(--shadow-sm); }
 .filter-select { padding: 0.42rem 0.65rem; border-radius: 0.55rem; border: 1px solid var(--input-border); font-size: 0.84rem; background: var(--surface); color: var(--text); font-family: inherit; }

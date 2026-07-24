@@ -35,6 +35,47 @@ function makeThemeToggle() {
   return btn;
 }
 
+/* ---------- Pantau versi → banner "Muat ulang" saat deploy baru ----------
+   Zero-maintenance: bandingkan ETag/Last-Modified file inti (HEAD, no-store).
+   Berubah bila deploy menyentuh index.html / styles.css / app.js. */
+const VERSION_FILES = ['index.html', 'css/styles.css', 'js/app.js'];
+let loadedSignature = null;
+let updateBannerShown = false;
+
+async function fileTag(url) {
+  try {
+    const res = await fetch(url + '?_=' + Date.now(), { method: 'HEAD', cache: 'no-store' });
+    if (!res.ok) return '';
+    return res.headers.get('etag') || res.headers.get('last-modified') || res.headers.get('content-length') || '';
+  } catch { return ''; }
+}
+async function currentSignature() {
+  const tags = await Promise.all(VERSION_FILES.map(fileTag));
+  return tags.join('|');
+}
+function showUpdateBanner() {
+  if (updateBannerShown) return;
+  updateBannerShown = true;
+  const bar = el('div', { class: 'update-banner', role: 'status' }, [
+    el('span', { class: 'update-banner__ico', html: ICONS.refresh }),
+    el('span', {}, 'Versi baru tersedia'),
+    el('button', { class: 'btn btn-primary btn-sm', onClick: () => location.reload() }, 'Muat ulang'),
+    el('button', { class: 'update-banner__close', 'aria-label': 'Tutup', html: '✕', onClick: () => bar.remove() }),
+  ]);
+  document.body.appendChild(bar);
+}
+async function checkVersion() {
+  const sig = await currentSignature();
+  if (!sig.replace(/\|/g, '')) return;              // semua tag kosong (offline/gagal) → abaikan
+  if (loadedSignature == null) { loadedSignature = sig; return; }
+  if (sig !== loadedSignature) showUpdateBanner();
+}
+function startVersionWatch() {
+  checkVersion();
+  setInterval(checkVersion, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkVersion(); });
+}
+
 /* ---------- Layout ---------- */
 let contentEl, sidebarEl, overlayEl, navEl, switcherEl;
 let openHubId; // modul yang terbuka di accordion
@@ -249,3 +290,4 @@ function start() {
 }
 
 start();
+startVersionWatch();   // pantau deploy baru → banner "Muat ulang"
